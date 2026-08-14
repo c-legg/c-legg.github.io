@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>关于子集的一个 trick</title>
+
+    <link rel="canonical" href="blogs/5.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="关于子集的一个 trick">
+    <meta name="description" content="给定 $m$ 个集合，其中第 $i$ 个集合形如 $[si, ti]$。有 $q$ 个询问，每次询问给定一个集合 $[l, r]$，求问 $m$ 个集合中是否有 $[l, r]$ 的子集，强制在线。保证 $1\le si\le ti\le n$，且所有输入都是正整数。 考虑一个值域上的数组 $fi$ 使得 $fl\le r$ 当且仅当存在 $[l, r]$ 的子集。 我们发现显然 $fi=\min{sj\ge i}tj$ 是符合条件的，而我们可以这么实现： cpp for(int i(1); i&lt;=n+1;">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2026-06-21T15:29:00">
+June 21, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <blockquote>
+<p>给定 <span class="arithmatex">\(m\)</span> 个集合，其中第 <span class="arithmatex">\(i\)</span> 个集合形如 <span class="arithmatex">\([s_i, t_i]\)</span>。有 <span class="arithmatex">\(q\)</span> 个询问，每次询问给定一个集合 <span class="arithmatex">\([l, r]\)</span>，求问 <span class="arithmatex">\(m\)</span> 个集合中是否有 <span class="arithmatex">\([l, r]\)</span> 的子集，强制在线。保证 <span class="arithmatex">\(1\le s_i\le t_i\le n\)</span>，且所有输入都是正整数。</p>
+</blockquote>
+<p>考虑一个值域上的数组 <span class="arithmatex">\(f_i\)</span> 使得 <span class="arithmatex">\(f_l\le r\)</span> 当且仅当存在 <span class="arithmatex">\([l, r]\)</span> 的子集。</p>
+<p>我们发现显然 <span class="arithmatex">\(f_i=\min_{s_j\ge i}t_j\)</span> 是符合条件的，而我们可以这么实现：</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">min</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span><span class="w"> </span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="n">n</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="n">min</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">min</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">min</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]);</span>
+</code></pre></div>
+<p>从而我们做到了 <span class="arithmatex">\(\Theta(n+m)\)</span> 的预处理和单次查询 <span class="arithmatex">\(\Theta(1)\)</span> 的优秀算法。</p>
+<p>应用：</p>
+<p><a href="https://atcoder.jp/contests/abc457/tasks/abc457_e">Crossing Table Cloth</a></p>
+<p><a href="https://atcoder.jp/contests/abc453/tasks/abc453_e">Team Division</a></p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>线性求最小生成树算法学习笔记</title>
+
+    <link rel="canonical" href="blogs/3.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="线性求最小生成树算法学习笔记">
+    <meta name="description" content="前言 神秘的算法，又是 Tarjan 的作品。 介绍 在这里，可以找到这个算法的名字：KargerKleinTarjan 算法，然后在这里（这么抽象的东西居然是卡内基梅隆大学的课件？）有该算法的简写：KKT 算法。 注意 KKT（KargerKleinTarjan）算法不是 KKT（KarushKuhnTucker）条件。 该算法基于 Boruvka 算法，Boruvka 算法的时间复杂度是 $\Theta(m\log n)$，而 KKT 算法的期望时间复杂度为 $\Theta(m)$，最坏时间复杂度为 $">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2025-08-17T20:13:00">
+August 17, 2025
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <h2 id="_1">前言</h2>
+<p>神秘的算法，又是 Tarjan 的<a href="https://cs.brown.edu/research/pubs/pdfs/1995/Karger-1995-RLT.pdf">作品</a>。</p>
+<h2 id="_2">介绍</h2>
+<p>在<a href="https://tmt514.github.io/algorithm-analysis/minimum-spanning-tree/karger-klein-tarjan.html">这里</a>，可以找到这个算法的名字：Karger-Klein-Tarjan 算法，然后在<a href="https://www.cs.cmu.edu/~clegoues/docs/slides/theory_lunch_presentation_KKT.pdf">这里</a>（这么抽象的东西居然是卡内基梅隆大学的课件？）有该算法的简写：KKT 算法。</p>
+<p>注意 KKT（Karger-Klein-Tarjan）算法不是 KKT（Karush-Kuhn-Tucker）条件。</p>
+<p>该算法基于 Boruvka 算法，Boruvka 算法的时间复杂度是 <span class="arithmatex">\(\Theta(m\log n)\)</span>，而 KKT 算法的期望时间复杂度为 <span class="arithmatex">\(\Theta(m)\)</span>，最坏时间复杂度为 <span class="arithmatex">\(\Omega(\min\{n^2, m\log n\})\)</span>。</p>
+<h2 id="boruvka">Boruvka 算法</h2>
+<p>要学会 KKT，我们要先学会 Boruvka 算法，而 Boruvka 算法是由 Boruvka step 组成的。每个 Boruvka step 的时间复杂度是 <span class="arithmatex">\(\Theta(m)\)</span>，它可以求出一个带权连通图的最小生成森林。</p>
+<blockquote>
+<h3 id="_3">最小生成森林</h3>
+<p>一个带权连通图的最小生成森林是该图的一个子图（包含原图中所有点，但不一定包含所有边），可以不连通，当然还有一些其他性质。</p>
+<p>但在这个算法里，最小生成森林的用处就在于：一个带权连通图的最小生成森林也是该图的最小生成树的一个子图。</p>
+</blockquote>
+<p>然后我们还有另一个贪心的性质：对于一个结点，连接它的边中权值最小的边一定在最小生成树上（所以也可以在最小生成森林上）。</p>
+<p>所以我们就知道怎么进行 Boruvka step 了：</p>
+<p>对每个结点，找到连接它的边中权值最小的边，然后把它加入一个边集里。根据上面的性质，把不在这个边集里的边去掉，得到的图就是原图的一个最小生成森林。</p>
+<p>例如（加粗的边是一次 Boruvka step 之后会选出的边）：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/7i0jqlmu.png" /></p>
+<p>然后我们可以来看 Boruvka 算法，它的步骤如下（假设原图为 <span class="arithmatex">\(G\)</span>）：</p>
+<ol>
+<li>对 <span class="arithmatex">\(G\)</span> 进行一次 Boruvka step；</li>
+<li>得到的图中可能会有很多连通块，我们把每个联通块缩成一个点，并保留每个连通块间的边，这会得到一个新图 <span class="arithmatex">\(G_1\)</span>；</li>
+<li>如果 <span class="arithmatex">\(G_1\)</span> 中只有一个结点，那么 Boruvka 算法结束，否则回到步骤 1 对 <span class="arithmatex">\(G_1\)</span> 进行同样的事情。</li>
+</ol>
+<p><del>非常简单的算法。</del></p>
+<p>然后我们可以来进行一下复杂度分析：</p>
+<ul>
+<li>显然一次 Boruvka step 的时间复杂度是 <span class="arithmatex">\(\Theta(m)\)</span>；</li>
+<li>Boruvka 算法的时间复杂度取决于执行 Boruvka step 的次数，所以它的复杂度为 <span class="arithmatex">\(\Theta(mx)\)</span>，<span class="arithmatex">\(x\)</span> 是执行 Boruvka step 的次数；</li>
+<li>又每次执行 Boruvka step 后节点数至少减半，所以执行次数 <span class="arithmatex">\(x=\log n\)</span>；</li>
+<li>综上 Boruvka 算法的时间复杂度为 <span class="arithmatex">\(O(m\log n)\)</span>，最坏是 <span class="arithmatex">\(\Omega(\min\{n^2, m\log n\})\)</span>，最好是 <span class="arithmatex">\(\Omega(m)\)</span>。</li>
+</ul>
+<h2 id="kkt">KKT 算法</h2>
+<p><del>所以讲了那么多，还没开始讲 KKT？</del></p>
+<p>下面我们来介绍线性求最小生成树的算法。</p>
+<p>首先我们还要引入一个叫 <span class="arithmatex">\(F\)</span> 重/轻边的概念。</p>
+<blockquote>
+<p>假设原图 <span class="arithmatex">\(G\)</span> 上有一条边 <span class="arithmatex">\((u, v)\)</span>，权值为 <span class="arithmatex">\(w\)</span>，然后在 <span class="arithmatex">\(G\)</span> 的最小生成森林中连接 <span class="arithmatex">\(u\)</span> 和 <span class="arithmatex">\(v\)</span> 的路径中的权值最大的边的权值为 <span class="arithmatex">\(w_F\)</span>（如果在 <span class="arithmatex">\(F\)</span> 中 <span class="arithmatex">\(u\)</span> 和 <span class="arithmatex">\(v\)</span> 不在一个连通块里就令 <span class="arithmatex">\(w_F=\inf\)</span>）。</p>
+<p>如果 <span class="arithmatex">\(w\le w_F\)</span>，边 <span class="arithmatex">\((u, v)\)</span> 就是一条 <span class="arithmatex">\(F\)</span> 轻边，反之就是 <span class="arithmatex">\(F\)</span> 重边。</p>
+</blockquote>
+<p>然后我们再不加证明地写下两个引理：</p>
+<ol>
+<li>对于上面定义的 <span class="arithmatex">\(G\)</span> 和 <span class="arithmatex">\(F\)</span>，所有 <span class="arithmatex">\(F\)</span> 重边不在 <span class="arithmatex">\(G\)</span> 的最小生成树中。</li>
+<li>若 <span class="arithmatex">\(H\)</span> 是 <span class="arithmatex">\(G\)</span> 的一个子图，且 <span class="arithmatex">\(H\)</span> 包含 <span class="arithmatex">\(G\)</span> 中每条边的概率都为 <span class="arithmatex">\(p\)</span>，然后 <span class="arithmatex">\(F\)</span> 是 <span class="arithmatex">\(H\)</span> 的一个最小生成森林，则在 <span class="arithmatex">\(G\)</span> 中，<span class="arithmatex">\(F\)</span> 轻边的期望数量最多为 <span class="arithmatex">\(\frac{n}{p}\)</span>。</li>
+</ol>
+<p>于是就有了 KKT，算法步骤如下：</p>
+<ol>
+<li>对 <span class="arithmatex">\(G\)</span> 做两次 Boruvka step，节点数变为 <span class="arithmatex">\(\frac{n}{4}\)</span>，设这个收缩了的图为 <span class="arithmatex">\(G_1\)</span>，如果 <span class="arithmatex">\(G_1\)</span> 中只有一个结点，那么算法结束；</li>
+<li>构造出 <span class="arithmatex">\(G_1\)</span> 的子图 <span class="arithmatex">\(H\)</span> 使得 <span class="arithmatex">\(H\)</span> 包含 <span class="arithmatex">\(G_1\)</span> 中每条边的概率都为 <span class="arithmatex">\(\frac{1}{2}\)</span>，然后求出 <span class="arithmatex">\(H\)</span> 的一个最小生成森林 <span class="arithmatex">\(F\)</span>，再删除 <span class="arithmatex">\(G_1\)</span> 中的所有 <span class="arithmatex">\(F\)</span> 重边得到子图 <span class="arithmatex">\(G_2\)</span>；</li>
+<li>对 <span class="arithmatex">\(G_2\)</span> 做同样的事。</li>
+</ol>
+<p>然后 KKT 算法就结束了，我们来算一下它的复杂度。</p>
+<p>设对于一个 <span class="arithmatex">\(n\)</span> 个结点，<span class="arithmatex">\(m\)</span> 条边的图，KKT 的期望操作次数为 <span class="arithmatex">\(T(n, m)\)</span>，那么有：</p>
+<div class="arithmatex">\[
+T(n, m)\le c(m+n)+T(\frac{n}{4}, \frac{m}{2})+T(\frac{n}{4}, \frac{n}{4})
+\]</div>
+<p>其中 <span class="arithmatex">\(c\)</span> 是一个适当的常数，不等式可以用上面的引理二来解释。</p>
+<p>以及可以用归纳法证明 <span class="arithmatex">\(T(n, m)=\Theta(m)\)</span>，易证从略。</p>
+<h2 id="_4">参考文献/撒花</h2>
+<p><a href="https://cs.brown.edu/research/pubs/pdfs/1995/Karger-1995-RLT.pdf">A randomized linear-time algorithm to find minimum spanning trees</a></p>
+<p><a href="https://tmt514.github.io/algorithm-analysis/minimum-spanning-tree/karger-klein-tarjan.html">Karger-Klein-Tarjan 演算法 - 演算法的分析與證明</a></p>
+<p><a href="https://www.luogu.com/article/yi5bpji2">期望线性复杂度最小生成树算法学习笔记 - 洛谷专栏</a></p>
+<p><a href="https://www.cs.cmu.edu/~clegoues/docs/slides/theory_lunch_presentation_KKT.pdf">theory_lunch_presentation_KKT.pdf</a></p>
+<p><a href="https://oi-wiki.org/graph/mst/#boruvka-%E7%AE%97%E6%B3%95">最小生成树 - OI Wiki</a></p>
+<p>R. C. T. Lee, S. S. Tseng, R. C. Chang, Y. T. Tsai. 算法设计与分析导论[M]. 北京：机械工业出版社，2008.</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

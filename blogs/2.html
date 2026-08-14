@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>珂朵莉树/老司机树学习笔记</title>
+
+    <link rel="canonical" href="blogs/2.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="珂朵莉树/老司机树学习笔记">
+    <meta name="description" content="洛谷链接 介绍 珂朵莉树（Chtholly Tree）也叫老司机树（ODT），是一种基于平衡树（一般用 set 或 map 实现）的暴力算法，可用于解决区间修改、区间加法、区间查询以及其他区间操作，在处理区间修改效率最高，适用于随机数据。 实现 从 [P3740 [HAOI2014] 贴海报](https://www.luogu.com.cn/problem/P3740) 开始 虽然这题并不是经典的珂朵莉树题，但因为这题只需实现 split 和 assign 操作，比较简单，我就把它放到最前面好了。 题意大">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2025-07-29T15:12:00">
+July 29, 2025
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p><a href="https://www.luogu.com.cn/article/edm2e1qa">洛谷链接</a></p>
+<h2 id="_1">介绍</h2>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/ysomjb88.png" /></p>
+<p>珂朵莉树（Chtholly Tree）也叫老司机树（ODT），是一种基于平衡树（一般用 <code>set</code> 或 <code>map</code> 实现）的<strong>暴力</strong>算法，可用于解决区间修改、区间加法、区间查询以及其他区间操作，在处理区间修改效率最高，适用于随机数据。</p>
+<h2 id="_2">实现</h2>
+<h3 id="p3740-haoi2014">从 <a href="https://www.luogu.com.cn/problem/P3740">P3740 [HAOI2014] 贴海报</a> 开始</h3>
+<p>虽然这题并不是经典的珂朵莉树题，但因为这题只需实现 <code>split</code> 和 <code>assign</code> 操作，比较简单，我就把它放到最前面好了。</p>
+<p>题意大致是：给出一个区间 <span class="arithmatex">\([1,n]\)</span>，最初所有元素颜色均为 <span class="arithmatex">\(0\)</span>，要进行 <span class="arithmatex">\(m\)</span> 次操作，对于第 <span class="arithmatex">\(i\)</span> 次操作，给出 <span class="arithmatex">\(a_i,b_i\)</span>，把区间 <span class="arithmatex">\([a_i,b_i]\)</span> 中所有元素染成颜色 <span class="arithmatex">\(i\)</span>，其中 <span class="arithmatex">\(i\in\mathbb N\cap[1,m]\)</span>，求结束后的颜色个数。</p>
+<p>可以用一些奇怪的办法做，比如线段树+离散化，浮水法之类的（我没写过不知道），但这不重要，我们开始讲珂朵莉树。</p>
+<p>珂朵莉树本质上就是维护若干个区间，每个区间中的所有值都相等，相邻区间中的值可以相等。我们用一个结构体来表示一个区间：</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">node</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">    </span><span class="k">mutable</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"> </span><span class="c1">// 让 val 保持可变状态</span>
+
+<span class="w">    </span><span class="n">node</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 构造函数</span>
+<span class="w">        </span><span class="n">l</span><span class="o">=</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">=</span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">&amp;</span><span class="n">oth</span><span class="p">)</span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 比较函数，后面会用</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">l</span><span class="o">&lt;</span><span class="n">oth</span><span class="p">.</span><span class="n">l</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>然后我们有一堆 <code>node</code> 即区间，把他们用 <code>set</code> 排成一排：</p>
+<div class="highlight"><pre><span></span><code><span class="n">set</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cht</span><span class="p">;</span><span class="w"> </span><span class="c1">// 珂朵莉树 Chtholly Tree</span>
+</code></pre></div>
+<p>然后我们要进行区间赋值，但如果区间赋值的边缘与当前区间的边缘不一致就比较困难，这个时候我们可以考虑把目前的区间分割一下再处理。</p>
+<p>比如原本的区间像下面这样：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/27bhnifw.png" /></p>
+<p>而下图中蓝色部分是我们要修改的区间：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/0pnvre7h.png" /></p>
+<p>然后我们把第 <span class="arithmatex">\(3\)</span>、<span class="arithmatex">\(5\)</span> 个区间沿红线切割，并删掉中间所有区间，再创建一个区间，值为 <span class="arithmatex">\(666\)</span>：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/dbng31m5.png" /></p>
+<p>现在事情就好办了，我们要写 <span class="arithmatex">\(2\)</span> 个函数，分别负责切割和赋值：</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">split</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 分割成 [l, pos) [pos, r]  返回[pos, r]</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="o">=</span><span class="n">cht</span><span class="p">.</span><span class="n">lower_bound</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">pos</span><span class="p">));</span><span class="w"> </span><span class="c1">// 找到第一个区间 [l,r] 使得 l&gt;=pos</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">!=</span><span class="n">cht</span><span class="p">.</span><span class="n">end</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">it</span><span class="o">-&gt;</span><span class="n">l</span><span class="o">==</span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="p">;</span><span class="w"> </span><span class="c1">// 不用分割</span>
+<span class="w">    </span><span class="n">it</span><span class="o">--</span><span class="p">;</span><span class="w"> </span><span class="c1">// 到左边去 此时 l&lt;=pos&lt;r</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">it</span><span class="p">);</span><span class="w"> </span><span class="c1">// 删掉此区间</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">));</span><span class="w"> </span><span class="c1">// 插入左区间</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)).</span><span class="n">first</span><span class="p">;</span><span class="w"> </span><span class="c1">// 插入并返回右区间</span>
+<span class="p">}</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">assign</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 赋值 把 [l, r] 中所有值改成 val</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">itr</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">itl</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">l</span><span class="p">);</span><span class="w"> </span><span class="c1">// 分割 这里分 r+1 是因为 erase 删除的是一个左闭右开区间</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">itl</span><span class="p">,</span><span class="w"> </span><span class="n">itr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">));</span><span class="w"> </span><span class="c1">// 插入新节点</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>接着让我们回到上面那题，就可以发现这是一道裸的珂朵莉树题，修改上面已经讲过了，求最终答案时，只要遍历 <code>set</code>，再用一个 <code>unordered_set</code> 对颜色去重即可：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bits/stdc++.h&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">node</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">    </span><span class="k">mutable</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">node</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">l</span><span class="o">=</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">=</span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">&amp;</span><span class="n">oth</span><span class="p">)</span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">l</span><span class="o">&lt;</span><span class="n">oth</span><span class="p">.</span><span class="n">l</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">set</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cht</span><span class="p">;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">split</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="o">=</span><span class="n">cht</span><span class="p">.</span><span class="n">lower_bound</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">pos</span><span class="p">));</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">it</span><span class="o">!=</span><span class="n">cht</span><span class="p">.</span><span class="n">end</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">it</span><span class="o">-&gt;</span><span class="n">l</span><span class="o">==</span><span class="n">pos</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">it</span><span class="p">;</span>
+<span class="w">    </span><span class="n">it</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">=</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">it</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)).</span><span class="n">first</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">assign</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">itr</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">itl</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">l</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">itl</span><span class="p">,</span><span class="w"> </span><span class="n">itr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ios</span><span class="o">::</span><span class="n">sync_with_stdio</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="o">&gt;&gt;</span><span class="n">m</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">));</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">        </span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">l</span><span class="o">&gt;&gt;</span><span class="n">r</span><span class="p">;</span>
+<span class="w">        </span><span class="n">assign</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cht</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ans</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">ans</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="n">ans</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_3">简单练习一下（用珂朵莉树可能过不了，但却是是练习的好题）</h3>
+<ul>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P1840">P1840 Color the Axis</a></p>
+</li>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P4344">P4344 [SHOI2015] 脑洞治疗仪</a></p>
+</li>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P1558">P1558 色板游戏</a></p>
+</li>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P4979">P4979 矿洞：坍塌</a></p>
+</li>
+</ul>
+<h3 id="cf896c-willem-chtholly-and-seniorious">再看模板题 <a href="https://www.luogu.com.cn/problem/CF896C">CF896C Willem, Chtholly and Seniorious</a></h3>
+<p><img alt="" src="https://espresso.codeforces.com/70b3105d47df9b61a594a6a7c52f8d65e8ba2aa0.png" /></p>
+<p>其实把这题的随机函数去掉，就只是要我们维护区间加法、区间赋值、区间第 <span class="arithmatex">\(x\)</span> 小，区间 <span class="arithmatex">\(x\)</span> 次幂和模 <span class="arithmatex">\(y\)</span>，十分简单，我们一个个来解决。</p>
+<p>对了，在处理之前，为了方便，我们先定义</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">itr</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">itl</span><span class="o">=</span><span class="n">split</span><span class="p">(</span><span class="n">l</span><span class="p">);</span>
+</code></pre></div>
+<p>再来进行处理。</p>
+<ol>
+<li>区间加法</li>
+</ol>
+<p>很简单，把 <code>itl</code> 到 <code>itr</code> 中的每个区间的值都加上 <span class="arithmatex">\(x\)</span> 即可。</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="p">(;</span><span class="w"> </span><span class="n">itl</span><span class="o">!=</span><span class="n">itr</span><span class="p">;</span><span class="w"> </span><span class="n">itl</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">val</span><span class="o">+=</span><span class="n">x</span><span class="p">;</span>
+</code></pre></div>
+<ol>
+<li>区间赋值</li>
+</ol>
+<p>直接调用 <code>assign</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="n">cht</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">itl</span><span class="p">,</span><span class="w"> </span><span class="n">itr</span><span class="p">);</span>
+<span class="n">cht</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">));</span>
+</code></pre></div>
+<ol>
+<li>区间第 <span class="arithmatex">\(x\)</span> 小</li>
+</ol>
+<p>我认为这个操作十分良好地体现了珂朵莉树“暴力”的特点，我们把 <code>itl</code> 到 <code>itr</code> 中的每个区间 按其值排序，然后遍历找第 <span class="arithmatex">\(x\)</span> 个就可以。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="n">ll</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">arr</span><span class="p">;</span><span class="w"> </span><span class="c1">// 定义一个数组 first 为区间值 second 为区间长度</span>
+<span class="n">arr</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span><span class="w"> </span><span class="c1">// 清空</span>
+<span class="k">for</span><span class="p">(;</span><span class="w"> </span><span class="n">itl</span><span class="o">!=</span><span class="n">itr</span><span class="p">;</span><span class="w"> </span><span class="n">itl</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ll</span><span class="w"> </span><span class="n">v</span><span class="o">=</span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+<span class="w">    </span><span class="n">arr</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">r</span><span class="o">-</span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">});</span><span class="w"> </span><span class="c1">// 加入到末尾</span>
+<span class="p">}</span>
+<span class="n">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">arr</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"> </span><span class="c1">// 按值排序</span>
+<span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="o">:</span><span class="w"> </span><span class="n">arr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 遍历</span>
+<span class="w">    </span><span class="n">x</span><span class="o">-=</span><span class="n">i</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 找到了</span>
+<span class="w">        </span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">i</span><span class="p">.</span><span class="n">first</span><span class="o">&lt;&lt;</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ol>
+<li>区间 <span class="arithmatex">\(x\)</span> 次幂和模 <span class="arithmatex">\(y\)</span></li>
+</ol>
+<p>做法和操作 <span class="arithmatex">\(1\)</span> 很类似，加上一个快速幂即可，此处不给出快速幂代码。</p>
+<div class="highlight"><pre><span></span><code><span class="n">ll</span><span class="w"> </span><span class="n">ans</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(;</span><span class="w"> </span><span class="n">itl</span><span class="o">!=</span><span class="n">itr</span><span class="p">;</span><span class="w"> </span><span class="n">itl</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ans</span><span class="o">=</span><span class="p">(</span><span class="n">ans</span><span class="o">+</span><span class="p">(</span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">r</span><span class="o">-</span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">poww</span><span class="p">(</span><span class="n">itl</span><span class="o">-&gt;</span><span class="n">val</span><span class="o">%</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">))</span><span class="o">%</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">ans</span><span class="o">&lt;&lt;</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</code></pre></div>
+<p><a href="https://codeforces.com/contest/896/submission/307389704"><span class="arithmatex">\(\color{#00AA00}\texttt{Accepted}\)</span></a></p>
+<h3 id="_4">再练习一下（纯珂朵莉树也可能过不了）</h3>
+<ul>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P2572">P2572 [SCOI2010] 序列操作</a></p>
+</li>
+<li>
+<p><a href="https://www.luogu.com.cn/problem/P8146">P8146 [JRKSJ R4] risrqnis</a></p>
+</li>
+</ul>
+<h2 id="_5">后记</h2>
+<p>就先写到这吧，我有点累了。</p>
+<p>到这里大致上就把珂朵莉树的基本思想和实现讲完了，要是遇到珂朵莉树的题再做不出，就只有 <span class="arithmatex">\(3\)</span> 种原因了：</p>
+<ol>
+<li>惨遭 hack <del>（我很讨厌 hack 珂朵莉树的行为，一来是珂朵莉太可爱了，二来是这样做显得珂朵莉树什么都干不了，三来是我不会线段树）</del></li>
+<li>模板打错</li>
+<li>不够<a href="https://codeforces.com/blog/entry/126310">俄罗斯</a></li>
+</ol>
+<hr />
+<p>话说我突然感觉珂朵莉好可爱啊 qwq。</p>
+<h2 id="_6">参考文献（撒花）</h2>
+<p><a href="https://oi-wiki.org/misc/odt/">珂朵莉树/颜色段均摊 - OI Wiki</a></p>
+<p><a href="https://www.luogu.com.cn/article/yfcae6d6">珂朵莉树学习笔记 - 洛谷专栏</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/102786071">珂朵莉树的复杂度分析 - 知乎</a></p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

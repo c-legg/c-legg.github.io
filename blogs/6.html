@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>线性同余发生器学习笔记</title>
+
+    <link rel="canonical" href="blogs/6.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="线性同余发生器学习笔记">
+    <meta name="description" content="前言 大家好，今天我忘记了 mt19937、rand 等函数和 C++ 的使用方法，但我想使用随机化，于是我学会了线性同余发生器。 这真是我写过内容最浅显的文章了，我自己都觉得丢人。 介绍 线性同余发生器是一种简单的随机数生成算法，如果 $Xi$ 是它生成出的第 $i$ 个随机数，则有： $$ Xi=\begin{cases} \text{seed} &amp; i=1 \\ (kX{i1}+b)\operatorname{mod}m &amp; \text{Otherwise} \end{cases} $$ 显然这是一个">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2026-08-11T20:48:00">
+August 11, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <h2 id="_1">前言</h2>
+<p>大家好，今天我忘记了 <code>mt_19937</code>、<code>rand</code> 等函数和 C++ 的使用方法，但我想使用随机化，于是我学会了线性同余发生器。</p>
+<p><del>这真是我写过内容最浅显的文章了，我自己都觉得丢人。</del></p>
+<h2 id="_2">介绍</h2>
+<p>线性同余发生器是一种简单的随机数生成算法，如果 <span class="arithmatex">\(X_i\)</span> 是它生成出的第 <span class="arithmatex">\(i\)</span> 个随机数，则有：</p>
+<div class="arithmatex">\[
+X_i=\begin{cases}
+\text{seed} &amp; i=1 \\
+(kX_{i-1}+b)\operatorname{mod}m &amp; \text{Otherwise}
+\end{cases}
+\]</div>
+<p>显然这是一个递推公式，其中 <span class="arithmatex">\(k, b, m, \text{seed}\)</span> 是我们选定的一些正整数且 <span class="arithmatex">\(k, b, \text{seed}\lt m\)</span>。</p>
+<p>然后我们来研究线性同余发生器生成的随机数有什么性质。</p>
+<p>首先根据这个递推式，我们可以发现如果 <span class="arithmatex">\(X_i=X_j\)</span>，则 <span class="arithmatex">\(X_{i+1}=X_{j+1}\)</span>，也就是说线性同余发生器生成出的随机数是有周期性的，而且看起来周期并不长。</p>
+<p>然后我们又可以观察到周期的上限是 <span class="arithmatex">\(m\)</span>，因为在理想状态下，一个周期中的数最多有 <span class="arithmatex">\(m\)</span> 个且当 <span class="arithmatex">\(k=1, b=1\)</span> 时可以把所有数都取到，所以这就是上限了。</p>
+<p>但很多时候周期的长度取不到上限 <span class="arithmatex">\(m\)</span>，所以线性同余发生器是无法生成 <span class="arithmatex">\(\mathbb{Z}\cap[0, m-1]\)</span> 中的所有数的。</p>
+<p>所以我们要研究怎样选取 <span class="arithmatex">\(k, b, m, \text{seed}\)</span> 使得生成的随机数尽可能均匀。</p>
+<p>我们可以先尝试一个例子，其中 <span class="arithmatex">\(\text{seed}=1, k=1145141, b=0, m=2^{32}-1\)</span>：</p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="k">define</span><span class="w"> </span><span class="p">(</span><span class="nf">next</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="nv">k</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="nv">m</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nb">remainder</span><span class="w"> </span><span class="p">(</span><span class="nb">+</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="nv">k</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="nv">b</span><span class="p">)</span><span class="w"> </span><span class="nv">m</span><span class="p">))</span>
+
+<span class="p">(</span><span class="k">define</span><span class="w"> </span><span class="nv">rand</span>
+<span class="w">  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">x</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="nf">k</span><span class="w"> </span><span class="mi">1145141</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="nf">b</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="nf">m</span><span class="w"> </span><span class="mi">4294967295</span><span class="p">))</span>
+<span class="w">    </span><span class="p">(</span><span class="k">lambda</span><span class="w"> </span><span class="p">()</span>
+<span class="w">      </span><span class="p">(</span><span class="k">set!</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="p">(</span><span class="nf">next</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="nv">k</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="nv">m</span><span class="p">))</span>
+<span class="w">      </span><span class="nv">x</span><span class="p">)))</span>
+</code></pre></div>
+<p>（我依然没有想起怎么用 C++）</p>
+<p>（如果你不知道 Scheme 是什么以及怎么使用，可以去阅读《计算机程序的构造与解释》）</p>
+<p>这个随机数生成器看起来随机性还不赖，我们可以通过蒙特卡罗法来检验一下：</p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="k">define</span><span class="w"> </span><span class="p">(</span><span class="nf">monte</span><span class="w"> </span><span class="nv">n</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="k">define</span><span class="w"> </span><span class="p">(</span><span class="nf">rnd</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="nb">/</span><span class="w"> </span><span class="p">(</span><span class="nf">rand</span><span class="p">)</span><span class="w"> </span><span class="mf">4294967295.0</span><span class="p">))</span>
+<span class="w">  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="p">((</span><span class="nf">res</span><span class="w"> </span><span class="nv">n</span><span class="p">)</span>
+<span class="w">           </span><span class="p">(</span><span class="nf">d</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<span class="w">    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">=</span><span class="w"> </span><span class="nv">res</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="nb">/</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="mf">4.0</span><span class="w"> </span><span class="nv">d</span><span class="p">)</span><span class="w"> </span><span class="nv">n</span><span class="p">)</span>
+<span class="w">        </span><span class="p">(</span><span class="nf">it</span><span class="w"> </span><span class="p">(</span><span class="nb">-</span><span class="w"> </span><span class="nv">res</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="p">(</span><span class="nb">+</span><span class="w"> </span><span class="nv">d</span>
+<span class="w">               </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">((</span><span class="nf">x</span><span class="w"> </span><span class="p">(</span><span class="nf">rnd</span><span class="p">))</span>
+<span class="w">                     </span><span class="p">(</span><span class="nf">y</span><span class="w"> </span><span class="p">(</span><span class="nf">rnd</span><span class="p">)))</span>
+<span class="w">                 </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="nb">+</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="nv">x</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">*</span><span class="w"> </span><span class="nv">y</span><span class="w"> </span><span class="nv">y</span><span class="p">))</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">)))))))</span>
+</code></pre></div>
+<p>然后 load 之后用 <code>(monte 114514)</code> 启动，第一次计算的结果是 <span class="arithmatex">\(3.145117627538991\)</span>。[^1]</p>
+<p>[^1]: 在我想起 C++ 的 <code>rand</code> 的参数后，我尝试以 <span class="arithmatex">\(1\)</span> 为随机种子，结果是 <span class="arithmatex">\(3.137712419442164\)</span>。</p>
+<p>于是我们得出了结论：<span class="arithmatex">\(m\)</span> 只要很大就行，<span class="arithmatex">\(\text{seed}\)</span> 取一个随机数就行（比如时间戳），<span class="arithmatex">\(k, b\)</span> 按自己的喜好选两个质数就可以。</p>
+<p>好吧，其实我也不知道，网上也没有找到什么这方面的资料，但这里有一些其他例子：<a href="例子出自[此处](https://blog.csdn.net/Ethan_Rich/article/details/145451254#t6)">^2</a></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">名称</th>
+<th style="text-align: center;"><span class="arithmatex">\(k\)</span></th>
+<th style="text-align: center;"><span class="arithmatex">\(b\)</span></th>
+<th style="text-align: center;"><span class="arithmatex">\(m\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">RANDU</td>
+<td style="text-align: center;"><span class="arithmatex">\(65539\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2^{31}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">MINSTD</td>
+<td style="text-align: center;"><span class="arithmatex">\(16807\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(0\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2^{31}-1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">Numerical Recipes</td>
+<td style="text-align: center;"><span class="arithmatex">\(65539\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(1013904223\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2^{32}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">glibc <code>rand()</code></td>
+<td style="text-align: center;"><span class="arithmatex">\(1103515245\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(12345\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2^{31}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">MSVC++</td>
+<td style="text-align: center;"><span class="arithmatex">\(214013\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2531011\)</span></td>
+<td style="text-align: center;"><span class="arithmatex">\(2^{32}\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">参考文献（不撒花了）</h2>
+<p><a href="https://baike.baidu.com/item/%E7%BA%BF%E6%80%A7%E5%90%8C%E4%BD%99%E5%8F%91%E7%94%9F%E5%99%A8/22674963">线性同余发生器_百度百科</a></p>
+<p><a href="https://blog.csdn.net/Ethan_Rich/article/details/145451254">算法：线性同余法(LCG,Linear Congruential Generator)-CSDN博客</a></p>
+<p><a href="https://www.cnblogs.com/qcblog/p/8450427.html">线性同余发生器与伪随机数 - Qcer - 博客园</a></p>
+<p><a href="https://oi-wiki.org/misc/random/">随机函数 - OI Wiki</a></p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

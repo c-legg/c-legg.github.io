@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>并查集学习笔记</title>
+
+    <link rel="canonical" href="blogs/11.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="并查集学习笔记">
+    <meta name="description" content="这个页面介绍并查集。 朴素并查集 考虑这个问题： 初始时有 $n$ 个节点，它们之间没有任何边。有 $m$ 个操作，每次操作要么加入一条无向边，要么给定两个节点并询问它们是否在一个连通块内。 一般的想法是不断地跑 DFS 来判断是否在一个连通块内，但这样的查询操作是 $O(n+m)$ 的，非常糟糕。 于是我们可以给每个节点赋一个指针，那么一个连通块中只有一个节点 $u$ 使得它指向自己，我们把它记作 $\text{find}v$，$v$ 可以是该连通块中任意一个节点。 画成图就是一个类似树的东西，$\tex">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2026-08-11T21:38:00">
+August 11, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>这个页面介绍并查集。</p>
+<h2 id="_1">朴素并查集</h2>
+<p>考虑这个问题：</p>
+<blockquote>
+<p>初始时有 <span class="arithmatex">\(n\)</span> 个节点，它们之间没有任何边。有 <span class="arithmatex">\(m\)</span> 个操作，每次操作要么加入一条无向边，要么给定两个节点并询问它们是否在一个连通块内。</p>
+</blockquote>
+<p>一般的想法是不断地跑 DFS 来判断是否在一个连通块内，但这样的查询操作是 <span class="arithmatex">\(O(n+m)\)</span> 的，非常糟糕。</p>
+<p>于是我们可以给每个节点赋一个指针，那么一个连通块中只有一个节点 <span class="arithmatex">\(u\)</span> 使得它指向自己，我们把它记作 <span class="arithmatex">\(\text{find}_v\)</span>，<span class="arithmatex">\(v\)</span> 可以是该连通块中任意一个节点。</p>
+<p>画成图就是一个类似树的东西，<span class="arithmatex">\(\text{find}_v\)</span> 就是 <span class="arithmatex">\(v\)</span> 所在的树的根，可以用一个递归函数来查找。</p>
+<p>一开始，所有节点的指向它自己，即 <span class="arithmatex">\(\text{tag}_i=i\)</span>。</p>
+<p>最后可以发现加边操作就是合并两个连通块，所以在 <span class="arithmatex">\(u\)</span> 和 <span class="arithmatex">\(v\)</span> 之间加一条边就相当于令 <span class="arithmatex">\(\text{tag}_{\text{find}_v}=\text{find}_u\)</span>，反过来也可以。</p>
+<p>大功告成！</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">tag</span><span class="p">[</span><span class="n">N</span><span class="o">+</span><span class="mi">5</span><span class="p">];</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">tag</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="n">x</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">unite</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">tag</span><span class="p">[</span><span class="n">find</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">u</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>这个数据结构就是并查集。</p>
+<h2 id="_2">路径压缩</h2>
+<p>但是这样做的话，树的形态可以是一条链，那么单次操作的复杂度就变成了 <span class="arithmatex">\(O(n)\)</span>。</p>
+<p>所以我们可以在 <code>find</code> 的过程中把这棵树拍扁，让 <code>\text{tag}_v</code> 直接变成 <span class="arithmatex">\(\text{find}_v\)</span>，这样节点的深度就能大大降低了。我们把这种优化方式称为<strong>路径压缩</strong>。</p>
+<p>它的代码也很简单，只要把 <code>find</code> 改成这样：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">x</span><span class="o">==</span><span class="n">tag</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">tag</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="n">x</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>在这里测试：<a href="https://www.luogu.com.cn/problem/P3367">https://www.luogu.com.cn/problem/P3367</a></p>
+<p>但路径压缩的复杂度很神秘，应该是 <span class="arithmatex">\(O(\log n)\)</span> 级的。</p>
+<blockquote>
+<p>例题一：Color the Axis</p>
+</blockquote>
+<p>原题：<a href="https://www.luogu.com.cn/problem/P1840">https://www.luogu.com.cn/problem/P1840</a></p>
+<p>把每个连续的白色块当成一个连通块，那么就可以用并查集来做，<span class="arithmatex">\(\text{find}_v\)</span> 指 <span class="arithmatex">\(v\)</span> 所在连通块的左端点。每次对一个区间染色就暴力地从右端点跳到左端点。</p>
+<p>为什么它的复杂度是对的呢？因为我们每跳一次，就会把一个黑点变成白点，一共有 <span class="arithmatex">\(n\)</span> 个点，就要跳 <span class="arithmatex">\(n+O(1)\)</span> 次。</p>
+<blockquote>
+<p>例题二：上帝造题的七分钟 2 / 花神游历各国</p>
+</blockquote>
+<p>原题：<a href="https://www.luogu.com.cn/problem/P4145">https://www.luogu.com.cn/problem/P4145</a></p>
+<p>首先当 <span class="arithmatex">\(1\le x\le 10^{12}\)</span> 时，我们在 <span class="arithmatex">\(6\)</span> 次开平方操作之内就能把它变成 <span class="arithmatex">\(1\)</span>。</p>
+<p>所以与上一题类似，把已经变成 <span class="arithmatex">\(1\)</span> 了的连续的数当成一个连通块，再用树状数组维护区间和就行了。</p>
+<p>总结一下，路径压缩的优势就是能保存根节点的信息，我们可以利用这点做一些区间上的问题。</p>
+<h2 id="_3">启发式合并</h2>
+<p>这是另一种优化方式。</p>
+<p>在每次合并时，显然我们把大小较小的连通块连到较大的连通块上是更优的。假设以 <span class="arithmatex">\(v\)</span> 为根的子树大小是 <span class="arithmatex">\(\text{siz}_v\)</span>，那么优化后总有 <span class="arithmatex">\(\text{siz}_{\text{tag}_v}\ge 2\text{siz}_v\)</span>。也就是 <code>find</code> 中每次递归时树的大小都会翻倍，树高就会是 <span class="arithmatex">\(O(\log n)\)</span> 级的。</p>
+<p>如果有特别的条件也可以实现撤销合并的操作。</p>
+<hr />
+<p>并且你可以同时使用路径压缩与启发式合并，这可以使单次查询的时间复杂度变为 <span class="arithmatex">\(O(\alpha(n))\)</span>，你可能不知道这是什么，但只要知道它很小就行了，<span class="arithmatex">\(\alpha(10^{18})\le 10\)</span>。</p>
+<p>同时如果我们把根节点的信息在合并时也进行转移的话，就可以维护每个连通块的最值等。</p>
+<p>习题：<a href="https://www.luogu.com.cn/problem/P3295">https://www.luogu.com.cn/problem/P3295</a></p>
+<p>最后更新于 2026/8/11。</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

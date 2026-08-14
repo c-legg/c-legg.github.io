@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>锦标赛排序学习笔记</title>
+
+    <link rel="canonical" href="blogs/1.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="锦标赛排序学习笔记">
+    <meta name="description" content="洛谷链接 介绍 锦标赛排序可以用这个等式来描述： $$ \small\textsf{锦标赛排序}=\dfrac{\left(\textsf{选择排序}+\textsf{堆排序}\right)}{2} $$ 就是这样的，锦标赛排序本质上就是维护一个小根堆（锦标赛排序树），每次取走最小值，而且较堆排序更易于实现。 实现 首先，设原数组为 $a$，锦标赛排序树为 $\text{tr}$，还有一棵树 $\text{id}$，排序完的数组为 $b$。 这里我们用数组存储树，所以 $\text{tr}$ 和 $\tex">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2025-07-29T13:49:00">
+July 29, 2025
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p><a href="https://www.luogu.com.cn/article/u95qepn9">洛谷链接</a></p>
+<h2 id="_1">介绍</h2>
+<p>锦标赛排序可以用这个等式来描述：</p>
+<div class="arithmatex">\[
+\small\textsf{锦标赛排序}=\dfrac{\left(\textsf{选择排序}+\textsf{堆排序}\right)}{2}
+\]</div>
+<p>就是这样的，锦标赛排序本质上就是维护一个小根堆（锦标赛排序树），每次取走最小值，而且较堆排序更易于实现。</p>
+<h2 id="_2">实现</h2>
+<p>首先，设原数组为 <span class="arithmatex">\(a\)</span>，锦标赛排序树为 <span class="arithmatex">\(\text{tr}\)</span>，还有一棵树 <span class="arithmatex">\(\text{id}\)</span>，排序完的数组为 <span class="arithmatex">\(b\)</span>。</p>
+<p>这里我们用数组存储树，所以 <span class="arithmatex">\(\text{tr}\)</span> 和 <span class="arithmatex">\(\text{id}\)</span> 也是数组，其中对于所有整数 <span class="arithmatex">\(i\in[1,n]\)</span>，都有 <span class="arithmatex">\(\text{tr}_{i+n-1}=a_i,id_{i+n-1}=i\)</span>。也就是说，<span class="arithmatex">\(\text{tr}\)</span> 的第 <span class="arithmatex">\(n\)</span> 层的元素全等于 <span class="arithmatex">\(a\)</span> 中的所有元素。</p>
+<p>在 <span class="arithmatex">\(\text{tr}\)</span> 中，任意两个兄弟节点的父节点是他们的最小值，所以<strong>在开始时</strong>，<span class="arithmatex">\(\text{tr}_1=\min{a}\)</span>，同时可以发现：对于所有整数 <span class="arithmatex">\(i\in[1,2n-1]\)</span>，<span class="arithmatex">\(\text{tr}_i\in a\)</span>，可以发现，此时锦标赛排序树满足小根堆的性质，大致长这样（图片来自 oi-wiki）：</p>
+<p><img alt="图片来自 oi-wiki" src="https://oi-wiki.org/basic/images/tournament-sort1.png" /></p>
+<p>可以理解为有 <span class="arithmatex">\(n\)</span> 个人在打淘汰赛，经过 <span class="arithmatex">\(\log n\)</span> 场比赛后就会产生出冠军，上图中黑线表示被淘汰。</p>
+<p>根据选择排序的规则，我们找到了 <span class="arithmatex">\(a\)</span> 的最小值后，就应当删掉它去找次小值，在锦标赛排序中也一样。我们要找到最小值的位置，然后把最小值改成 <span class="arithmatex">\(\infty\)</span>，此时可以像堆一样进行向上调整，调整后的树是这样的：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/4pz2q6mt.png" /></p>
+<p>也就是说，我们在 <span class="arithmatex">\(\Theta(\log n)\)</span> 的时间里，就找到了次小数！以此类推，最坏情况下完成排序的时间复杂度为 <span class="arithmatex">\(\Theta(n\log n)\)</span>。</p>
+<p>但这个时候有个问题，我们怎么确定最小值的<strong>位置</strong>？我们可以用另一棵树 <span class="arithmatex">\(\text{id}\)</span>，它标记了锦标赛排序树上每个节点在 <span class="arithmatex">\(a\)</span> 中的位置，用上面的图举个例子，我们用下标表示 <span class="arithmatex">\(\text{id}\)</span>：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/j06a5ccn.png" /></p>
+<p>大家现在都懂了吧？让我们放代码：</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bits/stdc++.h&gt;</span>
+<span class="cp">#define one(x) ((int)(1e##x))</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">tr</span><span class="p">[</span><span class="n">one</span><span class="p">(</span><span class="mi">6</span><span class="p">)];</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">[</span><span class="n">one</span><span class="p">(</span><span class="mi">6</span><span class="p">)];</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cin</span><span class="o">&gt;&gt;</span><span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="n">id</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">-=</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">i</span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="o">=</span><span class="n">i</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">tr</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">tr</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">tr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">            </span><span class="n">id</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">tr</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">tr</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">            </span><span class="n">id</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">tr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="s">&quot; </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">[</span><span class="n">i</span><span class="o">==</span><span class="n">n</span><span class="p">];</span>
+<span class="w">        </span><span class="n">tr</span><span class="p">[</span><span class="n">id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">n</span><span class="mi">-1</span><span class="p">]</span><span class="o">=</span><span class="mi">1000000020</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">now</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">n</span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">now</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">now</span><span class="o">^</span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">next</span><span class="o">=</span><span class="n">now</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">tr</span><span class="p">[</span><span class="n">now</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">tr</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">tr</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">tr</span><span class="p">[</span><span class="n">now</span><span class="p">];</span>
+<span class="w">                </span><span class="n">id</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="n">now</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">tr</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">tr</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">                </span><span class="n">id</span><span class="p">[</span><span class="n">next</span><span class="p">]</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">now</span><span class="o">=</span><span class="n">next</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="_3">复杂度分析</h2>
+<p>上面已经提到过了：锦标赛排序的时间复杂度最好和最坏均为 <span class="arithmatex">\(\Theta(n\log n)+\Theta(n)\)</span>，显然优于归并排序。空间复杂度为 <span class="arithmatex">\(\Theta(n)\)</span>，常数为 <span class="arithmatex">\(5\)</span>。</p>
+<h2 id="_4">参考文献（撒花）</h2>
+<p><a href="https://oi-wiki.org/basic/tournament-sort/">锦标赛排序 - OI Wiki</a></p>
+<p><a href="https://blog.csdn.net/Acx77/article/details/116852010">树形选择排序(锦标赛排序)_锦标赛排序是稳定的排序方法吗-CSDN博客</a></p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

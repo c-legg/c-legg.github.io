@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>集合论入门学习笔记·集合的大小</title>
+
+    <link rel="canonical" href="blogs/8.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="集合论入门学习笔记·集合的大小">
+    <meta name="description" content="（《集合论基础》读了一半后感） （本文与 OI 无关） FUN FACT：俄国人用 $\subset$ 表示子集，用 $\subsetneqq$ 表示真子集，而且我也是这么学的。 集合的基数 我们把一个集合中元素的数量称为该集合的基数，集合 $S$ 的基数表示为 $\mid S\mid$。 若集合 $A$ 与 $B$ 之间存在一一对应，则 $\mid A\mid=\mid B\mid$。 $\binom{\mid S\mid}{k}$ 可以表示为集合 $S$ 的子集中基数为 $k$ 的子集组成的集合的基数。">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2026-08-11T20:56:00">
+August 11, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>（<a href="https://book.douban.com/subject/25739302/">《集合论基础》</a>读了一半后感）</p>
+<p>（本文与 OI 无关）</p>
+<blockquote>
+<p>FUN FACT：俄国人用 <span class="arithmatex">\(\subset\)</span> 表示子集，用 <span class="arithmatex">\(\subsetneqq\)</span> 表示真子集，而且我也是这么学的。</p>
+</blockquote>
+<h2 id="_1">集合的基数</h2>
+<p>我们把一个集合中元素的数量称为该集合的基数，集合 <span class="arithmatex">\(S\)</span> 的基数表示为 <span class="arithmatex">\(\mid S\mid\)</span>。</p>
+<blockquote>
+<p>若集合 <span class="arithmatex">\(A\)</span> 与 <span class="arithmatex">\(B\)</span> 之间存在一一对应，则 <span class="arithmatex">\(\mid A\mid=\mid B\mid\)</span>。</p>
+</blockquote>
+<p><span class="arithmatex">\(\binom{\mid S\mid}{k}\)</span> 可以表示为集合 <span class="arithmatex">\(S\)</span> 的子集中基数为 <span class="arithmatex">\(k\)</span> 的子集组成的集合的基数。显然每个基数为 <span class="arithmatex">\(k\)</span> 的子集对应一个基数为 <span class="arithmatex">\(\mid S\mid-k\)</span> 的子集，所以 <span class="arithmatex">\(\binom{\mid S\mid}{k}=\binom{\mid S\mid}{\mid S\mid-k}\)</span>。</p>
+<blockquote>
+<p><span class="arithmatex">\([0, 1]\)</span> 与所有无限长的 01 串组成的集合有相同的基数。</p>
+</blockquote>
+<p>这很简单，因为每个数都有二进制表示，如 <span class="arithmatex">\(0.4375=0.011100000\cdots_{(2)}\)</span>。</p>
+<blockquote>
+<p><span class="arithmatex">\([0, 1]^2=\{(x, y)\mid x, y\in[0, 1]\}\)</span> 与 <span class="arithmatex">\([0, 1]\)</span> 有相同的基数。</p>
+</blockquote>
+<p>设 <span class="arithmatex">\(x\)</span> 的二进制表示对应的 01 串是 <span class="arithmatex">\(a_0, a_1, a_2,\cdots\)</span>，<span class="arithmatex">\(y\)</span> 的是 <span class="arithmatex">\(b_0, b_1, b_2,\cdots\)</span>。那么 <span class="arithmatex">\(a_0, b_0, a_1, b_1, a_2, b_2, \cdots\)</span> 也对应一个 <span class="arithmatex">\([0, 1]\)</span> 间的数。也就是说 <span class="arithmatex">\(\{(x, y)\mid x, y\in[0, 1]\}\)</span> 与 <span class="arithmatex">\([0, 1]\)</span> 存在一个一一对应。</p>
+<p>这告诉我们一个正方形<strong>内</strong>的点的数量与这个正方形<strong>上</strong>点的数量是相同的。</p>
+<h2 id="_2">可数集的基数</h2>
+<p>我们可以发现基数的定义可以应用于无穷集，所以我们可以定义 <span class="arithmatex">\(\mid\mathbb{N}\mid=\aleph_0\)</span>，同时我们把所有基数为 <span class="arithmatex">\(\aleph_0\)</span> 的集合称为可数集。</p>
+<blockquote>
+<p><span class="arithmatex">\(\mathbb{Z}\)</span> 是一个可数集。</p>
+</blockquote>
+<p>这是显然的，因为我们可以通过映射 <span class="arithmatex">\(x\to 2\mid x\mid+[x\le 0]\)</span> 建立 <span class="arithmatex">\(\mathbb{Z}\)</span> 与 <span class="arithmatex">\(\mathbb{N}\)</span> 之间的一个一一对应（这里用到了艾弗森括号）。</p>
+<blockquote>
+<p><span class="arithmatex">\(\mathbb{Q}\)</span> 是一个可数集（这里我们只考虑正有理数）。</p>
+</blockquote>
+<p>因为像 <span class="arithmatex">\(\frac{3}{6}\)</span> 这样的分数存在，所以 <span class="arithmatex">\(\mid\mathbb{Q}\mid\le{\aleph_0}^2\)</span>，又因为整数集是有理数集的一个子集，所以 <span class="arithmatex">\(\aleph_0\le\mid\mathbb{Q}\mid\)</span>。所以 <span class="arithmatex">\(\aleph_0\le{\aleph_0}^2\)</span>，我们只需证明 <span class="arithmatex">\({\aleph_0}^2=\aleph_0\)</span>。</p>
+<p>然后发现有映射 <span class="arithmatex">\((x, y)\to 2^{x+y}+2^y\)</span>，也就是说 <span class="arithmatex">\({\aleph_0}^2\le\aleph_0\)</span>，所以 <span class="arithmatex">\({\aleph_0}^2=\aleph_0\)</span>。</p>
+<blockquote>
+<p>任何无穷集都有一个可数子集。</p>
+</blockquote>
+<p>我们可以取出集合中的一个元素，将其标为 <span class="arithmatex">\(1\)</span> 号，再取出一个，标为 <span class="arithmatex">\(2\)</span> 号，……因为集合是无穷大的，所以我们可以一直做下去，于是这个集合有至少一个可数子集。</p>
+<h2 id="_3">集合比大小</h2>
+<p>实际上，我写的关于有理数集是可数集的证明是有问题的，因为我们不能通过“集合 <span class="arithmatex">\(A\)</span> 与集合 <span class="arithmatex">\(B\)</span> 的一个子集存在一一对应”和“集合 <span class="arithmatex">\(B\)</span> 与集合 <span class="arithmatex">\(A\)</span> 的一个子集存在一一对应”推出 <span class="arithmatex">\(\mid A\mid=\mid B\mid\)</span>。接下来我们来证明这一点。</p>
+<blockquote>
+<p>（Cantor-Bernstein 定理）如果集合 <span class="arithmatex">\(A\)</span> 与集合 <span class="arithmatex">\(B\)</span> 的一个子集存在一一对应且集合 <span class="arithmatex">\(B\)</span> 与集合 <span class="arithmatex">\(A\)</span> 的一个子集存在一一对应，那么集合 <span class="arithmatex">\(A\)</span> 与集合 <span class="arithmatex">\(B\)</span> 存在一一对应。</p>
+</blockquote>
+<p>它等价于：如果 <span class="arithmatex">\(A_2\subseteq A_1\subseteq A_0\)</span> 且 <span class="arithmatex">\(\mid A_2\mid=\mid A_0\mid\)</span>，则这三个集合基数相等。</p>
+<p>由条件可知，存在一个从 <span class="arithmatex">\(A_0\)</span> 到 <span class="arithmatex">\(A_2\)</span> 的一一对应 <span class="arithmatex">\(f\)</span>。它把 <span class="arithmatex">\(A_1\)</span> 映射到 <span class="arithmatex">\(A_3\subseteq A_2\)</span> 上，把 <span class="arithmatex">\(A_2\)</span> 映射到 <span class="arithmatex">\(A_4\subseteq A_3\)</span> 上……于是我们可以构造出 <span class="arithmatex">\(A_1\supseteq A_2\supseteq A_3\cdots\)</span>。</p>
+<p>令 <span class="arithmatex">\(C_i=A_i\backslash A_{i+1}\)</span>，<span class="arithmatex">\(C=\cup_i A_i\)</span>。则 <span class="arithmatex">\(f\)</span> 会将 <span class="arithmatex">\(C_i\)</span> 映射到 <span class="arithmatex">\(C_{i+2}\)</span> 上，所以 <span class="arithmatex">\(C_0, C_2, C_4, \cdots\)</span> 有相同的基数；<span class="arithmatex">\(C_1, C_3, C_5, \cdots\)</span> 有相同的基数。</p>
+<p>于是：</p>
+<div class="arithmatex">\[
+\begin{align*}
+A_0 &amp; = C_0 + C_1 + C_2 + C_3 + C_4 \cdots + C \\
+A_1 &amp; = C_2 + C_1 + C_4 + C_3 + C_6 \cdots + C
+\end{align*}
+\]</div>
+<p>每一项之间都存在一一对应，所以 <span class="arithmatex">\(A_0\)</span> 与 <span class="arithmatex">\(A_1\)</span> 之间存在一一对应。</p>
+<h2 id="_4">实数是否是可数</h2>
+<p>不可数。</p>
+<p>我们可以把 <span class="arithmatex">\(0\)</span> 映射到 <span class="arithmatex">\(0\)</span>，把 <span class="arithmatex">\((0, 1]\)</span> 通过 <span class="arithmatex">\(x\to\frac{1}{x}\)</span> 映射到 <span class="arithmatex">\([1, +\infty)\)</span>，所以 <span class="arithmatex">\([0, 1]\)</span> 与 <span class="arithmatex">\(\mathbb{R}\)</span> 有相同的基数，我们把这个基数称为连续统基数，写作 <span class="arithmatex">\(\mathfrak{c}\)</span>。于是我们只需考虑 <span class="arithmatex">\([0, 1]\)</span> 是否可数。</p>
+<p>我们假设存在一种方式，给每个 <span class="arithmatex">\([0, 1]\)</span> 内的数一个正整数编号，如：</p>
+<div class="arithmatex">\[
+\begin{align*}
+1\to 0.{\color{red}1}100\cdots_{(2)}\\
+2\to 0.0{\color{red}1}01\cdots_{(2)}\\
+3\to 0.01{\color{red}0}1\cdots_{(2)}\\
+4\to 0.011{\color{red}1}\cdots_{(2)}\\
+\vdots
+\end{align*}
+\]</div>
+<p>那么可以构造出一个数使得它小数点后 <span class="arithmatex">\(i\)</span> 位与第 <span class="arithmatex">\(i\)</span> 个数的第 <span class="arithmatex">\(i\)</span> 位不同。在上面的例子中，我们构造 <span class="arithmatex">\(0.0010\cdots_{(2)}\)</span>，由定义可知，它不在这个表中。所以不存在这种表示方式，即 <span class="arithmatex">\(\mathfrak{c}=2^{\aleph_0}\gt\aleph_0\)</span>。</p>
+<p>我们也可以用形式化的方式给出上面这个定理的一般形式的证明。</p>
+<p>首先我们定义 <span class="arithmatex">\(P(X)\)</span> 是指 <span class="arithmatex">\(X\)</span> 所有子集组成的集合。</p>
+<blockquote>
+<p>（Cantor 定理）对于集合 <span class="arithmatex">\(X\)</span>，<span class="arithmatex">\(X\)</span> 与 <span class="arithmatex">\(P(X)\)</span> 间不存在一一对应。</p>
+</blockquote>
+<p>假设 <span class="arithmatex">\(f\)</span> 是 <span class="arithmatex">\(X\)</span> 与 <span class="arithmatex">\(P(X)\)</span> 间的一一对应。</p>
+<p>设 <span class="arithmatex">\(Z=\{x\in X\mid x\not\in f(x)\}\)</span>，这是 <span class="arithmatex">\(X\)</span> 的一个子集，所以 <span class="arithmatex">\(Z\in P(X)\)</span>，所以存在 <span class="arithmatex">\(a\in X\)</span> 使得 <span class="arithmatex">\(f(a)=Z\)</span>。</p>
+<p>如果 <span class="arithmatex">\(a\in Z\)</span>，则 <span class="arithmatex">\(a\not\in f(a)\)</span>，又 <span class="arithmatex">\(f(a)=Z\)</span>，所以 <span class="arithmatex">\(a\not\in Z\)</span>。</p>
+<p>如果 <span class="arithmatex">\(a\not\in Z\)</span>，则 <span class="arithmatex">\(a\in f(a)\)</span>，同理 <span class="arithmatex">\(a\in Z\)</span>。</p>
+<p>所以 <span class="arithmatex">\(Z\)</span> 根本不存在，<span class="arithmatex">\(f\)</span> 也是。</p>
+<h2 id="_5">基数的运算</h2>
+<p>这里我们要先重新定义一下几种运算。</p>
+<p>设 <span class="arithmatex">\(a=\mid A\mid, b=\mid B\mid\)</span>，其中集合 <span class="arithmatex">\(A\)</span> 与集合 <span class="arithmatex">\(B\)</span> 不相交。</p>
+<ul>
+<li><span class="arithmatex">\(a+b=\mid A\cup B\mid\)</span>，这很合理。</li>
+<li><span class="arithmatex">\(a\times b=\mid{(x, y)\mid x\in A, y\in B}\mid\)</span>，这也很合理。</li>
+<li><span class="arithmatex">\(a^b\)</span> 是由所有映射 <span class="arithmatex">\(f\)</span> 组成的集合的基数，其中 <span class="arithmatex">\(f\)</span> 的定义域是 <span class="arithmatex">\(B\)</span>，值域是 <span class="arithmatex">\(A\)</span> 的某个子集。说明这一点要用到乘法原理，<span class="arithmatex">\(f\)</span> 要把 <span class="arithmatex">\(B\)</span> 中每个元素映射到 <span class="arithmatex">\(A\)</span>，每次都有 <span class="arithmatex">\(a\)</span> 种方案，那么总共就有 <span class="arithmatex">\(a^b\)</span> 种方案。</li>
+</ul>
+<p>这几个运算与整数运算有着几乎一致的性质。</p>
+<p>有意思的是，我的初一时的数学老师告诉我，<span class="arithmatex">\(0^0\)</span> 是没有意义的，但是根据上面的定义 <span class="arithmatex">\(0^0=1\)</span>，因为空集到空集的映射只有一种。</p>
+<p>接下来我们可以给出许多的等式：</p>
+<ul>
+<li><span class="arithmatex">\(\aleph_0+n=\aleph_0\)</span></li>
+<li><span class="arithmatex">\(n\times\aleph_0=\aleph_0\)</span></li>
+<li><span class="arithmatex">\({\aleph_0}^n=\aleph_0\)</span></li>
+<li><span class="arithmatex">\(\mathfrak{c}\times\mathfrak{c}=2^{\aleph_0}\times2^{\aleph_0}=2^{2\times\aleph_0}=2^{\aleph_0}=\mathfrak{c}\)</span></li>
+<li><span class="arithmatex">\(\mathfrak{c}^{\aleph_0}={2^{\aleph_0}}^{\aleph_0}=2^{\aleph_0\times\aleph_0}=2^{\aleph_0}=\mathfrak{c}\)</span></li>
+<li><span class="arithmatex">\(\mathfrak{c}\le\mathfrak{c}\times{\aleph_0}\le\mathfrak{c}\times\mathfrak{c}=\mathfrak{c}\)</span>，所以 <span class="arithmatex">\(\mathfrak{c}\times{\aleph_0}=\mathfrak{c}\)</span>。</li>
+<li><a href="https://www.luogu.com.cn/discuss/1077753"><span class="arithmatex">\({\aleph_0}^{\mathfrak{c}}=2^\mathfrak{c}\)</span></a></li>
+</ul>
+<hr />
+<h2 id="_6">完结（？）撒花 + 参考文献</h2>
+<p>有意思的是，我们把满足 <span class="arithmatex">\(x\gt\aleph_0\)</span> 的最小的 <span class="arithmatex">\(x\)</span> 记作 <span class="arithmatex">\(\aleph_1\)</span>。命题 <span class="arithmatex">\(\aleph_1=\mathfrak{c}\)</span> 被称为连续统假设。</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E5%BA%B7%E6%89%98%E5%B0%94%E5%AE%9A%E7%90%86">康托尔定理 - 维基百科，自由的百科全书</a></p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

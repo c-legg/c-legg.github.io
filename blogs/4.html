@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>Lambda Calculus 学习笔记</title>
+
+    <link rel="canonical" href="blogs/4.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="Lambda Calculus 学习笔记">
+    <meta name="description" content="UPDATE on 2025 年 11 月 6 日：修复了 null? 的 bug。 前言 今天突然想起了 CodeWars，想在里面试试 Scheme，结果看到有个语言叫“Lambda Calculus” 就尝试了用这个做题。 然后就被创飞了。 所以我要好好复习一下 Lambda Calculus，于是我就要写这篇文章。 Lambda Calculus 的语法 金将军说过：编程语言一定要有语法。所以 Lambda Calculus 有语法，Lambda Calculus 中有三种元素如下： | 内容 | ">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+
+        
+<p>
+<i>
+<time datetime="2025-09-13T21:12:00">
+September 13, 2025
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>UPDATE on 2025 年 11 月 6 日：修复了 <code>null?</code> 的 bug。</p>
+<h2 id="_1">前言</h2>
+<p>今天突然想起了 <a href="https://www.codewars.com/">CodeWars</a>，想在里面试试 Scheme，结果看到有个语言叫“Lambda Calculus” 就尝试了用这个做题。</p>
+<p>然后就被创飞了。</p>
+<p>所以我要好好复习一下 Lambda Calculus，于是我就要写这篇文章。</p>
+<h2 id="lambda-calculus">Lambda Calculus 的语法</h2>
+<p>金将军说过：编程语言一定要有语法。所以 Lambda Calculus 有语法，Lambda Calculus 中有三种元素如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">内容</th>
+<th style="text-align: center;">变量</th>
+<th style="text-align: center;">函数</th>
+<th style="text-align: center;">应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">形式</td>
+<td style="text-align: center;"><code>&lt;变量名&gt;</code></td>
+<td style="text-align: center;"><code>λ &lt;参数&gt; . &lt;函数体&gt;</code></td>
+<td style="text-align: center;"><code>&lt;函数&gt; &lt;参数&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">解释</td>
+<td style="text-align: center;">就是变量名</td>
+<td style="text-align: center;">就是函数，返回 <code>&lt;函数体&gt;</code> 的值</td>
+<td style="text-align: center;">以 <code>&lt;参数&gt;</code> 为参数调用 <code>&lt;函数&gt;</code>，是左结合的</td>
+</tr>
+<tr>
+<td style="text-align: left;">例子</td>
+<td style="text-align: center;"><code>a</code></td>
+<td style="text-align: center;"><code>λ x y . x</code></td>
+<td style="text-align: center;"><code>(λ x y . x) a b</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">解释</td>
+<td style="text-align: center;">一个叫 <code>a</code> 的变量</td>
+<td style="text-align: center;">一个有两个参数的函数，函数的值是第一个参数</td>
+<td style="text-align: center;">调用刚才的函数，以 <code>a b</code> 为参数</td>
+</tr>
+</tbody>
+</table>
+<p>没看懂？很正常，我们来看一些例子：</p>
+<ol>
+<li><code>(λ x y . x) a b</code></li>
+</ol>
+<p><code>a</code> 的值。</p>
+<ol>
+<li><code>(λ x y . y) a b</code></li>
+</ol>
+<p><code>b</code> 的值。</p>
+<ol>
+<li><code>(λ u t f . u t f) (λ x y . x) a b</code></li>
+</ol>
+<p>这个比较复杂，但我们可以进行<strong>代换</strong>，把它变成 <code>(λ x y . x) a b</code>，那原式的值就是 <code>a</code>。</p>
+<p>第三个例子告诉我们：函数也可以是参数，应用也可以是函数体，当然函数也可以是函数体，这点我们稍后再说。</p>
+<p>然后原生的 Lambda Calculus 的语法就只有这么多了，但某些常见的版本还有以下两种元素：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">内容</th>
+<th style="text-align: center;">数字</th>
+<th style="text-align: center;">定义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">形式</td>
+<td style="text-align: center;"><code>&lt;数字&gt;</code></td>
+<td style="text-align: center;"><code>&lt;名称&gt;=&lt;值&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">解释</td>
+<td style="text-align: center;">就是数字</td>
+<td style="text-align: center;">用于把复杂的值绑定到一个名称上，方便后续使用</td>
+</tr>
+<tr>
+<td style="text-align: left;">例子</td>
+<td style="text-align: center;"><code>114514</code></td>
+<td style="text-align: center;"><code>true = (λ x y . x)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">解释</td>
+<td style="text-align: center;">略</td>
+<td style="text-align: center;">略</td>
+</tr>
+</tbody>
+</table>
+<p>语法规则太少了！什么东西都没有！这种语言真的可以用吗？你可能这么想，但不管是原版 Lambda Calculus 还是扩展版，都是图灵完备的，下一节我们就来开始研究怎么做到这点。</p>
+<h2 id="_2">实现布尔型</h2>
+<p><em>（下文中我们使用扩展版 Lambda Calculus，注意上下文中的函数的引用）</em></p>
+<p><em>（并且用 <code>;</code> 表示单行注释）</em></p>
+<p>这很简单，我们只要定义出下面的这些东西就行了：</p>
+<div class="highlight"><pre><span></span><code>true = λ x y . x
+false = λ x y . y
+
+if = λ u t f . u t f
+
+and = λ x y . if x y false
+or = λ x y . if x true y
+not = λ x . if x false true
+</code></pre></div>
+<p>你可能第一眼看到这些东西后一头雾水，并质疑它的可用性，所以我们还是举几个例子吧。</p>
+<ol>
+<li><code>if true a b</code></li>
+</ol>
+<p>我们要求这个式子的值，实际上就是求 <code>(λ u t f . u t f) (λ x y . x) a b</code>，把参数带入后前面那一坨就直接没了，所以转化成求 <code>(λ x y . x) a b</code>，再把 <code>a b</code> 带进去变成 <code>a</code>，这就是最终结果（其实就是上一节的第三个例子）。</p>
+<p>在 C++ 里可以这么写：<code>(true ? a : b)</code>，也许你就理解了。</p>
+<ol>
+<li><code>and true false</code></li>
+</ol>
+<p>还是一样的步骤（每行都是等价的）：</p>
+<div class="highlight"><pre><span></span><code>and true false
+(λ x y . if x y false) (λ x y . x) (λ x y . y)
+if (λ x y . x) (λ x y . y) (λ x y . y)
+(λ u t f . u t f) (λ x y . x) (λ x y . y) (λ x y . y)
+(λ x y . x) (λ x y . y) (λ x y . y)
+(λ x y . y)
+</code></pre></div>
+<p>也就是 <code>false</code>。</p>
+<p>然后其它的函数你可以自己试试。</p>
+<p>于是我们就可以发现了：Lambda Calculus 中根本没有“变量”，只有函数，连布尔值都是函数（你也许可以猜出下一节的内容了）。</p>
+<p>很奇怪，很猎奇，但是这是可行的一种解决方案。</p>
+<h2 id="_3">数字（只有非负整数）</h2>
+<p>在构造数字前，让我们先拜谢<strong><em>阿隆佐·邱奇</em></strong>大佬，他是图灵的老师，发明了 Lambda Calculus，并用这个证明了停机问题的不可计算性。%%%orz</p>
+<p>然后我们考虑使用邱奇编码来表示数字，也就是说我们可以认定：</p>
+<div class="arithmatex">\[
+n=\lambda f x.\overbrace{f(f(\cdots f(f}^{n个}(x))))
+\]</div>
+<p>也就是一个函数，参数为 <code>f x</code>，返回 <code>f</code> 在 <code>x</code> 上应用 <span class="arithmatex">\(n\)</span> 次的结果。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span><code>0 = λ f x . x
+1 = λ f x . f x
+2 = λ f x . f(f x)
+</code></pre></div>
+<p>虽然这很低效，但是我们已经没有更好的办法了。</p>
+<p>如果这还不够让你如雷灌顶的话，请看：</p>
+<div class="highlight"><pre><span></span><code>succ = λ n . λ f x . f(n f x)
+</code></pre></div>
+<p>这个函数有什么用？它可以返回 <span class="arithmatex">\(n+1\)</span>。</p>
+<p>试试看！</p>
+<div class="highlight"><pre><span></span><code>succ 3
+succ (λ f x . f(f(f x)))
+(λ n . λ f x . f(n f x)) (λ f x . f(f(f x)))
+λ f x . f((λ f x . f(f(f x))) f x)
+λ f x . f(f(f(f x))) ; 就是 4
+</code></pre></div>
+<p>我们很自然地想到用 <code>succ</code> 去定义加法，然而这是可行的，如下：</p>
+<div class="highlight"><pre><span></span><code>add = λ a b . a succ b
+</code></pre></div>
+<p>也就是把 <code>a</code> 的 <code>f</code> 和 <code>x</code> 换成 <code>succ</code> 和 <code>b</code>。</p>
+<p>试着展开一下（不太好用纯文本描述所以换成了 <span class="arithmatex">\(\TeX\)</span>）：</p>
+<div class="arithmatex">\[
+a\ \text{succ}\ b \\
+\lambda f x.\overbrace{f(f(\cdots f(f}^{n个}(x))))\ \text{succ}\ \lambda f x.\overbrace{f(f(\cdots f(f}^{m个}(x)))) \\
+\overbrace{\text{succ}(\text{succ}(\cdots \text{succ}(\text{succ}}^{n个}(\lambda f x.\overbrace{f(f(\cdots f(f}^{m个}(x)))))))) \\
+m+n
+\]</div>
+<p>但这样比较复杂，于是有另一种加法的定义方式（实际上没有太大区别）：</p>
+<div class="highlight"><pre><span></span><code>add = λ a b . λ f x . a f (b f x)
+</code></pre></div>
+<p>并且丘奇指出了这两个式子：</p>
+<div class="highlight"><pre><span></span><code>mul = λ a b . λ c . a (b c) ; 乘法
+pow = λ a b . b a ; 乘方
+</code></pre></div>
+<p>你可以试着证明一下这两个式子的正确性。</p>
+<p>（你可以在<a href="https://www.codewars.com/kata/546dbd81018e956b51000077/train/lambdacalc">这里</a>测试你的代码）</p>
+<p>另外我们还可以判断一个数是否为零（感谢 @<a href="https://www.luogu.com.cn/user/537934">litjohn</a> 大佬）：</p>
+<div class="highlight"><pre><span></span><code>zero? = λ n . n (λ x . false) true
+</code></pre></div>
+<p>然后我们还要实现减法，但现在还做不到，请看下一节。</p>
+<h2 id="_4">元组</h2>
+<p>目前我们已有的数据结构都太简单了，而且它们之间的关系是离散的，于是我们就想到要有个东西能把它们聚合起来，这样我们就可以有更复杂的程序，最天真的想法就是把两个数据“黏”在一起，这是尝试的结果：</p>
+<div class="highlight"><pre><span></span><code>cons = λ x y . λ p . if p x y ; 把两个元素黏在一起的函数
+car = λ p . p true ; 把第一个元素取出来
+cdr = λ p . p false ; 把第二个元素取出来
+</code></pre></div>
+<p>当然还有别的实现方式，但这种算是比较简洁的了。</p>
+<p>元组最简单的应用就是实现减法。</p>
+<p>设想有一个函数 <span class="arithmatex">\(f\)</span>，给它一个二元组 <span class="arithmatex">\((a, b)\)</span>，它会返回一个二元组 <span class="arithmatex">\((b, b+1)\)</span>，那如果对 <span class="arithmatex">\((0, 0)\)</span> 应用 <span class="arithmatex">\(n\)</span> 次 <span class="arithmatex">\(f\)</span>，就可以得到 <span class="arithmatex">\((n-1, n)\)</span>，于是我们可以写出一个可以求出 <span class="arithmatex">\(n-1\)</span> 的函数（对于 <span class="arithmatex">\(0\)</span>，它返回 <span class="arithmatex">\(0\)</span>）：</p>
+<div class="highlight"><pre><span></span><code>pred = λ n . car (n
+  (λ a . cons (cdr a) (succ (cdr a)))
+  (cons 0 0))
+; 我们可以把函数拆成多行写
+</code></pre></div>
+<p>你可以自己去验证这个函数的正确性，然后我们可以写出减法和一系列谓词：</p>
+<div class="highlight"><pre><span></span><code>sub = λ a b . b pred a
+le = λ a b . zero? (sub a b) ; 小于等于
+ge = λ a b . le b a ; 大于等于
+eq = λ a b . and (le a b) (ge a b) ; 等于
+neq = λ a b . not (eq a b) ; 不等于
+lt = λ a b . and (le a b) (neq a b) ; 小于
+gt = λ a b . and (ge a b) (neq a b) ; 大于
+</code></pre></div>
+<p><a href="https://www.codewars.com/kata/546ed19635a6610900000aa1/train/lambdacalc">测试你的代码</a></p>
+<p>然后因为元组的元素还可以是元组，所以就可以构造出列表、树之类的东西。</p>
+<p>但在这之前，我们要先实现递归。</p>
+<h2 id="_5">递归</h2>
+<p>我们要来实现递归，也就是一个函数不断调用自身来进行循环的操作。举个例子，如何实现一个函数，返回第 <span class="arithmatex">\(x\)</span> 个斐波那契数？</p>
+<p>我会！</p>
+<div class="highlight"><pre><span></span><code>fib = λ x . if (lt x 2)
+  1
+  (add (fib (sub x 1)) (fib (sub x 2)))
+</code></pre></div>
+<p>然而这样是不行的，这样的代码没法按传统的方式（是什么呢，好难猜啊）运行。</p>
+<p>那我们可以把目光移向参数，这是个存储数据的好地方：</p>
+<div class="highlight"><pre><span></span><code>fib- = λ f x . if (lt x 2)
+  1
+  (add (f f (sub x 1)) (f f (sub x 2)))
+
+f = λ x . fib- fib- x
+</code></pre></div>
+<p>这种做法和上面的做法看上去一样实际上是不一样的，我们把代码里的 <code>if</code>、<code>lt</code>、<code>add</code> 之类的东西展开再把代码变成原生的 Lambda Calculus 版本后就会发现：第一个版本因为调用了自己导致无法被展开，而第二个版本就可以正确地展开。</p>
+<p>我们把这一技术称为自应用技术（有时也被戏称为“穷人的 Y 组合子”）。</p>
+<p>但这么做是很烦的，所以我们来尝试一个更简单的例子：</p>
+<div class="highlight"><pre><span></span><code>sum = λ s . λ x . if (eq x 0) 0 (add x (s (sub x 1)))
+</code></pre></div>
+<p>那我们只要找到一个合适的 <code>s</code> 就可以了，且这个 <code>s</code> 要满足 <code>sum s = s</code>。</p>
+<p>那我们假设有一个函数 <code>Y</code>，使得对于所有类似于 <code>sum</code> 的函数 <code>f</code> 和类似于 <code>s</code> 的 <code>g</code>（即 <code>f g = g</code>），都有 <code>Y f = g</code>。</p>
+<p>为了得出 <code>s</code>，我们再设一个函数 <code>G</code> 使得 <code>G G = s</code>。又 <code>s = sum s</code>，所以 <code>G G = sum (G G)</code>。观察这个等式，可以找到 <code>G</code> 的定义：</p>
+<div class="highlight"><pre><span></span><code>G = λ x . sum (x x)
+</code></pre></div>
+<p>那 <code>s</code> 和 <code>Y</code> 也就有了：</p>
+<div class="highlight"><pre><span></span><code>s = G G
+Y = λ f . (λ x . f (x x)) (λ x . f (x x)) ; 这就是 Y 组合子
+</code></pre></div>
+<p>但这要求我们的语言是惰性求值的，因为一旦执行 <code>Y</code>，语言内核就会试图不断展开 <code>(x x)</code>，从而应发无线循环。所以为了使 Y 组合子能在一般的语言环境中运行，我们要将 <code>(x x)</code> 封装在一个函数内部来进行延迟求值，我们把这种方法称为 Z 组合子：</p>
+<div class="highlight"><pre><span></span><code>Z = λ f . (λ x . f (λ y . (x x) y)) (λ x . f (λ y . (x x) y))
+</code></pre></div>
+<p>我们的 Lambda Calculus 语言已经可以支持更复杂的运算了，现在它距离完全被证实图灵完备只有一步之遥，那就是更复杂的数据结构。</p>
+<h2 id="_6">列表</h2>
+<p>我们已经做了很多，但是还没有开始接触列表。列表是一些元素，经过 <code>cons</code> 的“黏合”组成的，比如由数字 <span class="arithmatex">\(1\)</span> 到 <span class="arithmatex">\(5\)</span> 组成的列表是这样构造的：</p>
+<div class="highlight"><pre><span></span><code>onetofive = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil)))) ; 注意最后的 nil
+</code></pre></div>
+<p>这里的 <code>nil</code> 是指一个空表，它的定义如下（这和 <code>0</code> 很像，不是吗？）：</p>
+<div class="highlight"><pre><span></span><code>nil = λ f . true
+</code></pre></div>
+<p>当然为了方便，我们还要实现一个函数 <code>null?</code> 来判断一个列表是否是空表（这和 <code>zero?</code> 很像，不是吗？）：</p>
+<div class="highlight"><pre><span></span><code>null? = λ x . x (λ a b . false)
+</code></pre></div>
+<p>因为和列表相关的操作通常是需要递归的，所以我们现在终于可以开始了。</p>
+<ul>
+<li>给定一个由数字组成的列表 <code>a</code>，编写一个函数 <code>length</code>，返回它的元素个数。</li>
+</ul>
+<div class="highlight"><pre><span></span><code>length- = λ len . λ a . if (null? a)
+  0
+  (add 1 (len (cdr a)))
+
+length = Z length- ; 使用前面的 Z 组合子来实现递归
+</code></pre></div>
+<ul>
+<li>给定两个由数字组成的列表 <code>a</code> 和 <code>b</code>，编写一个函数 <code>append</code>，把它们连接在一起。</li>
+</ul>
+<div class="highlight"><pre><span></span><code>append- = λ app . λ a b . if (null? a)
+  b
+  (cons (car a)
+        (app (cdr a) b))
+
+append = Z append-
+</code></pre></div>
+<ul>
+<li>给定一个由正整数组成的列表 <code>a</code>，编写一个函数 <code>max</code>，返回它的最大值，对于空列表，返回 <span class="arithmatex">\(0\)</span>。</li>
+</ul>
+<div class="highlight"><pre><span></span><code>max- = λ m . λ a . if (null? a)
+  0
+  ((λ x y . if (gt x y) x y) (car a) (m (cdr a)))
+
+max = Z max-
+</code></pre></div>
+<p>像这样的例子我们还能举出很多。同时，因为列表的元素还可以是列表，所以我们可以用 Lambda Calculus 写出的代码的复杂度也就可以进一步提升。</p>
+<h2 id="_7">参考文献/完结撒花</h2>
+<p>Harold Abelson, Gerald Jay Sussman and Juile Sussman. 计算机程序的构造与解释（原书第 2 版）[M]. 北京：机械工业出版社，2019.</p>
+<p>Daniel P. Friedman, Matthias Felleisen. The Little Schemer: 递归与函数式的奥妙[M]. 北京：电子工业出版社，2017.</p>
+<p>Roger Penrose. 皇帝新脑[M]. 长沙：湖南科学技术出版社，2007.</p>
+<p><a href="https://www.luogu.com.cn/article/cr6hfiut">Let's build our mathematics by using lambda calculus &amp;&amp; church encoding! - 洛谷专栏</a></p>
+<p><a href="https://learnxinyminutes.com/zh-cn/lambda-calculus/">Learn Lambda Calculus in Y Minutes</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/565089428">λ演算-简单介绍lambda演算的基本定义以及操作 - 知乎</a></p>
+<p><a href="https://greyishsong.ink/%E5%88%9D%E6%B6%89-%CE%BB-%E6%BC%94%E7%AE%97-lambda-calculus/">初涉 λ 演算 (lambda calculus) - greyishsong</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/547191928">Y组合子的一个启发式推导 - 知乎</a></p>
+<hr />
+<p>其实我还留了一个坑，那就是 Lambda Calculus 的运行方式，比如 β 规约、η 变换、柯里化之类的，但考虑到这篇文章的写作目的是学会使用 Lambda Calculus，就都略过了。</p>
+<p>下次一定。</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>
