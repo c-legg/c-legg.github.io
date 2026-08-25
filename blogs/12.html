@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>如何优雅流畅且简洁易懂幽默风趣地证明欧几里得算法和裴蜀定理</title>
+
+    <link rel="canonical" href="blogs/12.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="如何优雅流畅且简洁易懂幽默风趣地证明欧几里得算法和裴蜀定理">
+    <meta name="description" content="本文中的方法出自华罗庚的《数论导引》。 关于模的研究 话说这个东西到底叫什么，整数加法群的一个子群吗？ 一个模是一个整数的集合，使得对于这个集合内的任意两个数 $a, b$，$a+b$ 与 $ab$ 也在这个集合中。 例如，$\{0, 3, 3, 6, 6, 9, 9,\cdots\}$ 和 $0$ 还有 $\varnothing$ 都是模，$\{1, 2, 3\}$ 则不是（因为 $2+3$ 不在集合中）。 然后我们来研究一些模的性质。 （1）如果一个模非空，那么 $0$ 一定在这个模中。 因为模非空，所">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../comment.html">留言</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+<h1>
+如何优雅流畅且简洁易懂幽默风趣地证明欧几里得算法和裴蜀定理
+</h1>
+
+
+        
+<p>
+<i>
+<time datetime="2026-08-07T18:50:00">
+August 07, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>本文中的方法出自华罗庚的《数论导引》。</p>
+<h2 id="_1">关于模的研究</h2>
+<p>话说这个东西到底叫什么，整数加法群的一个子群吗？</p>
+<p>一个<strong>模</strong>是一个整数的集合，使得对于这个集合内的任意两个数 <span class="arithmatex">\(a, b\)</span>，<span class="arithmatex">\(a+b\)</span> 与 <span class="arithmatex">\(a-b\)</span> 也在这个集合中。</p>
+<p>例如，<span class="arithmatex">\(\{0, 3, -3, 6, -6, 9, -9,\cdots\}\)</span> 和 <span class="arithmatex">\(0\)</span> 还有 <span class="arithmatex">\(\varnothing\)</span> 都是模，<span class="arithmatex">\(\{1, 2, 3\}\)</span> 则不是（因为 <span class="arithmatex">\(2+3\)</span> 不在集合中）。</p>
+<p>然后我们来研究一些模的性质。</p>
+<blockquote>
+<p>（1）如果一个模非空，那么 <span class="arithmatex">\(0\)</span> 一定在这个模中。</p>
+</blockquote>
+<p>因为模非空，所以至少一个整数 <span class="arithmatex">\(a\)</span> 在这个模中，所以 <span class="arithmatex">\(a-a=0\)</span> 也在。</p>
+<blockquote>
+<p>（2）若 <span class="arithmatex">\(a, b\)</span> 是整数，则 <span class="arithmatex">\(\{ax+by\mid x, y\in\mathbb{Z}\}\)</span> 是一个模。</p>
+</blockquote>
+<p>这是显然的。</p>
+<blockquote>
+<p>（3）对于任意一个模（<span class="arithmatex">\(\{0\}\)</span> 还有 <span class="arithmatex">\(\varnothing\)</span> 除外），设<span class="arithmatex">\(a\)</span> 是模中的最小的正整数，则这个模中所有元素都是 <span class="arithmatex">\(a\)</span> 的整数倍。</p>
+</blockquote>
+<p>假设存在一个 <span class="arithmatex">\(n=ka+r\)</span> 且 <span class="arithmatex">\(0\lt r\lt a, r, k\in\mathbb{Z}\)</span> 在模中。</p>
+<p>因为 <span class="arithmatex">\(n\)</span> 和 <span class="arithmatex">\(ka\)</span> 都在模中，所以 <span class="arithmatex">\(r=n-ka\)</span> 也在模中。</p>
+<p>但是，<span class="arithmatex">\(0\lt r\lt a\)</span>，所以 <span class="arithmatex">\(a\)</span> 不是模中的最小正整数。</p>
+<p>显然 <span class="arithmatex">\(a\)</span> 是模中所有非零元素的 <span class="arithmatex">\(\gcd\)</span>。</p>
+<h2 id="_2">由此而来的裴蜀定理</h2>
+<p>考虑 <span class="arithmatex">\(ax+by=k\)</span> 这个方程，判断它是否有解，只要判断 <span class="arithmatex">\(k\)</span> 是否在 <span class="arithmatex">\(\{ax+by\mid x, y\in\mathbb{Z}\}\)</span> 中。然而这个模中的最小正整数是 <span class="arithmatex">\(\gcd(a, b)\)</span>，所以 <span class="arithmatex">\(k\)</span> 在模中当且仅当 <span class="arithmatex">\(\gcd(a, b)\mid k\)</span>。</p>
+<h2 id="_3">欧几里得算法——最大公因数变成模</h2>
+<p>观察（3）的证明，我们可以发现，要求 <span class="arithmatex">\(\gcd(a, b)\)</span>，就是要求模 <span class="arithmatex">\(S=\{ax+by\mid x, y\in\mathbb{Z}\}\)</span> 中的最小正整数。</p>
+<p>下面设 <span class="arithmatex">\(a\ge b\)</span>。</p>
+<p>令 <span class="arithmatex">\(r=a\operatorname{mod} b\)</span>，如果它等于 <span class="arithmatex">\(0\)</span>，<span class="arithmatex">\(\gcd(a, b)=b\)</span>。否则 <span class="arithmatex">\(r\)</span> 显然在 <span class="arithmatex">\(S\)</span> 中，并且 <span class="arithmatex">\(\{rx+by\mid x, y\in\mathbb{Z}\}\)</span> 与 <span class="arithmatex">\(S\)</span> 是同一个模。于是 <span class="arithmatex">\(\gcd(a, b)=\gcd(b, r)\)</span>，一直递归地做下去就行了。</p>
+<h3 id="_4">关于它的复杂度</h3>
+<p>首先，有一个引理，在 <a href="https://codeforces.com/contest/1617/problem/C">CF 题目</a> 中曾经出现，具体证明可以查看该题题解：</p>
+<blockquote>
+<p>当 <span class="arithmatex">\(x\gt y\)</span> 时，<span class="arithmatex">\(x\operatorname{mod}y\lt\frac{x}{2}\)</span>。</p>
+</blockquote>
+<p>所以每次 <span class="arithmatex">\(a, b\)</span> 有一个至少减半，复杂度是 <span class="arithmatex">\(O(\log n)\)</span> 的。</p>
+<h2 id="_5">在剩余的东西中找到扩展欧几里得算法</h2>
+<p>刚才我们知道了 <span class="arithmatex">\(ax+by=k\)</span> 在什么时候有解，但这不够，更多时候我们要找到它的解。</p>
+<p>首先我们已知这几个事实：</p>
+<ul>
+<li><span class="arithmatex">\(r=a-\lfloor\frac{a}{b}\rfloor b\)</span>，这是余数的定义。</li>
+<li><span class="arithmatex">\(\gcd(a, b)=\gcd(b, r)\)</span>，这是欧几里得算法。</li>
+<li>我们只要找到 <span class="arithmatex">\(ax+by=\gcd(a, b)\)</span> 的解即可，因为假设它的一个解是 <span class="arithmatex">\((x_0, y_0)\)</span>，那么 <span class="arithmatex">\(ax+by=k\)</span> 有一个解 <span class="arithmatex">\((\frac{k}{\gcd(a, b)}x_0, \frac{k}{\gcd(a, b)}y_0)\)</span>。</li>
+</ul>
+<p>于是我们就可以在回溯时求出解了。假设已经找到一对 <span class="arithmatex">\((x, y)\)</span> 使 <span class="arithmatex">\(bx+ry=\gcd(b, r)\)</span>，那么：</p>
+<div class="arithmatex">\[
+\begin{align*}
+\gcd(a, b) &amp;= \gcd(b, r) \\
+&amp;= bx+ry \\
+&amp;= bx+(a-\lfloor\frac{a}{b}\rfloor b)y \\
+&amp;= ay+b(x-\lfloor\frac{a}{b}\rfloor y)
+\end{align*}
+\]</div>
+<p>这也可以在递归的过程中实现：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">exgcd</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">tie</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="o">=</span><span class="n">exgcd</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="o">%</span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">-</span><span class="n">y</span><span class="o">*</span><span class="p">(</span><span class="n">a</span><span class="o">/</span><span class="n">b</span><span class="p">)};</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<p>希望你能从这篇文章中学到什么，谢谢！</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>

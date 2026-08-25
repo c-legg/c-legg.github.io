@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>字符串从基础到略微进阶算法合集</title>
+
+    <link rel="canonical" href="blogs/13.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="字符串从基础到略微进阶算法合集">
+    <meta name="description" content="注意：我不太喜欢字符串哈希，所以我没有写。 注意：本文偏重于算法及其思想本身，涉及到的题目较少。 注意：本文中字符串下标从 $0$ 开始。 注意：本文用 $s[i: j]$ 表示字符串 $si s{i+1} s{i+2} \cdots s{j1} s{j}$。 Trie 树（字典树） 我们要维护一个字符串的集合，比如 $\{\texttt{long}, \texttt{longlong}, \texttt{lung}, \texttt{let}, \texttt{lulu}\}$。我们当然可以直接存起来，但">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../comment.html">留言</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+<h1>
+字符串从基础到略微进阶算法合集
+</h1>
+
+
+        
+<p>
+<i>
+<time datetime="2026-08-22T15:32:17">
+August 22, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>注意：我不太喜欢字符串哈希，所以我没有写。</p>
+<p>注意：本文偏重于算法及其思想本身，涉及到的题目较少。</p>
+<p>注意：本文中字符串下标从 <span class="arithmatex">\(0\)</span> 开始。</p>
+<p>注意：本文用 <span class="arithmatex">\(s[i: j]\)</span> 表示字符串 <span class="arithmatex">\(s_i s_{i+1} s_{i+2} \cdots s_{j-1} s_{j}\)</span>。</p>
+<h2 id="trie">Trie 树（字典树）</h2>
+<p>我们要维护一个字符串的集合，比如 <span class="arithmatex">\(\{\texttt{long}, \texttt{longlong}, \texttt{lung}, \texttt{let}, \texttt{lulu}\}\)</span>。我们当然可以直接存起来，但这样空间复杂度很不友好，同时查询时复杂度也比较大。</p>
+<p>但我们发现它们有许多相同的前缀，所以我们可以想象出这样一个结构：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/idz366ht.png" /></p>
+<p>我们把一个字符当成一条边，一个字符串当成一个点。</p>
+<p>它节约了许多空间，并且查询集合中是否存在或加入一个字符串的时候只要做一次 <span class="arithmatex">\(O(\mid S\mid)\)</span> 的遍历就行了。</p>
+<p>这就是 Trie 树，我们考虑实现它（假设只有小写字母）：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="c1">// 树的大小</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="mi">26</span><span class="o">&gt;</span><span class="w"> </span><span class="n">nxt</span><span class="p">[</span><span class="n">N</span><span class="o">+</span><span class="mi">5</span><span class="p">];</span><span class="w"> </span><span class="c1">// 指向该节点的儿子节点 也可以用 vector</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">flg</span><span class="p">[</span><span class="n">N</span><span class="o">+</span><span class="mi">5</span><span class="p">];</span><span class="w"> </span><span class="c1">// 该节点上是否存在一个字符串/存在多少字符串 比如上面的图中 flg[4]=1 flg[14]=0</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 向集合中加入一个字符串</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 遍历</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">])</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 没有就加入</span>
+<span class="w">            </span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">]</span><span class="o">=++</span><span class="n">n</span><span class="p">;</span>
+<span class="w">            </span><span class="n">nxt</span><span class="p">[</span><span class="n">n</span><span class="p">].</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">pos</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">];</span><span class="w"> </span><span class="c1">// 移动</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">flg</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="c1">// 加标记</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 查询集合中是否存在一个字符串</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">pos</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">flg</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">!=</span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>这是模板题：<a href="https://www.luogu.com.cn/problem/P8306">https://www.luogu.com.cn/problem/P8306</a>，它要求查询前缀而非完整的字符串，也很简单：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">]</span><span class="o">=++</span><span class="n">n</span><span class="p">;</span>
+<span class="w">            </span><span class="n">nxt</span><span class="p">[</span><span class="n">n</span><span class="p">].</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">pos</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="sc">&#39;a&#39;</span><span class="p">];</span>
+<span class="w">        </span><span class="n">flg</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="c1">// 在哪里都加标记</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>这是另一道经典的题：<a href="https://www.luogu.com.cn/problem/P10471">https://www.luogu.com.cn/problem/P10471</a>，看起来和字符串没有任何关系。但是我们可以把每个数字的二进制表示当成一个字符串，在遍历时从高位向低位贪心：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">p</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 每次如果有就取与当前位相反的那个</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="sc">&#39;0&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="n">ans</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;1&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">p</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="n">ans</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">p</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="n">ans</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;1&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">p</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="n">ans</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">p</span><span class="o">=</span><span class="n">nxt</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>我们把它称为 01 Trie 树。</p>
+<blockquote>
+<p>动态开点线段树也是一种本质 01 Trie 树，并且 01 Trie 树可以当成平衡树用。</p>
+</blockquote>
+<h2 id="kmp">前缀函数和 KMP</h2>
+<p>有这样一个问题（单串匹配）：给定两个字符串 <span class="arithmatex">\(s\)</span> 和 <span class="arithmatex">\(t\)</span>，求出 <span class="arithmatex">\(t\)</span> 在 <span class="arithmatex">\(s\)</span> 中出现了几次。例如 <span class="arithmatex">\(s=\texttt{longanglong}, t=\texttt{ng}\)</span>，那么 <span class="arithmatex">\(t\)</span> 在 <span class="arithmatex">\(s\)</span> 中出现了 <span class="arithmatex">\(3\)</span> 次。</p>
+<p>朴素的做法是遍历 <span class="arithmatex">\(s\)</span>，判断从每个位置开始是否可行。但这样的时间复杂度是 <span class="arithmatex">\(O(\mid s\mid \mid t\mid)\)</span> 的。</p>
+<p>显然我们没有完全利用匹配时的信息，比如 <span class="arithmatex">\(t=\texttt{abcal}, s=\texttt{abcab}\cdots\)</span>，它们的前 <span class="arithmatex">\(4\)</span> 个字符相等，但第 <span class="arithmatex">\(5\)</span> 个不同。在朴素算法中，此时我们应当尝试从 <span class="arithmatex">\(s\)</span> 的第 <span class="arithmatex">\(2\)</span> 个字符开始匹配，但这实际上是没有意义的。因为前 <span class="arithmatex">\(4\)</span> 个字符中，<span class="arithmatex">\(t\)</span> 的前缀 <span class="arithmatex">\(\texttt{a}\)</span> 与后缀 <span class="arithmatex">\(\texttt{a}\)</span> 相同，所以我们可以从 <span class="arithmatex">\(s\)</span> 的第 <span class="arithmatex">\(4\)</span> 个字符开始匹配。</p>
+<p>但如何知道怎么跳跃呢？这里要用到前缀函数。</p>
+<h3 id="_1">前缀函数</h3>
+<p>我们先来看一些定义：</p>
+<p>真前缀：它是一个字符串 <span class="arithmatex">\(s\)</span> 的前缀，但不是 <span class="arithmatex">\(s\)</span> 本身。</p>
+<p>border：如果对于一个字符串 <span class="arithmatex">\(s\)</span>，它的一个长为 <span class="arithmatex">\(\ell\)</span> 的真前缀与一个长为 <span class="arithmatex">\(\ell\)</span> 的真后缀相等，这个前缀就是它的一个 border。</p>
+<p>前缀函数：字符串 <span class="arithmatex">\(s\)</span> 的前缀函数 <span class="arithmatex">\(\pi\)</span> 是一个数组，其中 <span class="arithmatex">\(\pi_i\)</span> 是 <span class="arithmatex">\(s[0: i-1]\)</span> 的最长 border 的长度。如 <span class="arithmatex">\(s=\texttt{abcab}\)</span> 的前缀函数是 <span class="arithmatex">\(\pi=[0, 0, 0, 1, 2]\)</span>。</p>
+<p>所以我们只要求出 <span class="arithmatex">\(t\)</span> 的前缀函数即可。首先我们能想到这样一件事：如果 <span class="arithmatex">\(s_{\pi_i}=s_{i+1}\)</span>，那么 <span class="arithmatex">\(\pi_{i+1}=\pi_{i}+1\)</span>。如图：<span class="arithmatex">\({\color{blue}\rule{5pt}{5pt}\rule{5pt}{5pt}}{\color{green}\rule{5pt}{5pt}}\rule{5pt}{5pt}\rule{5pt}{5pt}\rule{5pt}{5pt}{\color{blue}\rule{5pt}{5pt}\rule{5pt}{5pt}}{\color{green}\rule{5pt}{5pt}}\)</span>，其中绿点为 <span class="arithmatex">\(s_{i+1}\)</span> 和 <span class="arithmatex">\(s_{\pi_i}\)</span>。</p>
+<p>但如果 <span class="arithmatex">\(s_{\pi_i}\neq s_{i+1}\)</span> 怎么办？我们可以考虑 <span class="arithmatex">\(\pi_{\pi_i-1}\)</span>，它是 <span class="arithmatex">\(s[0: i-1]\)</span> 的一个前缀的前缀，由 border 的定义，它也是一个相同的后缀的相同后缀，所以也满足上图形式。并且可以证明，它是 <span class="arithmatex">\(s[0: i-1]\)</span> 的第二长的 border。</p>
+<p>于是我们可以一直迭代求出前缀函数：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">next</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pi</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">pi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="nf">j</span><span class="p">(</span><span class="n">pi</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]);</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">j</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">!=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">pi</span><span class="p">[</span><span class="n">j</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="n">pi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">j</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pi</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>它的时间复杂度是 <span class="arithmatex">\(\Theta(n)\)</span> 的，但是为什么？我们知道 <span class="arithmatex">\(j\)</span> 增加的的总量不会超过 <span class="arithmatex">\(n\)</span>，并且，<span class="arithmatex">\(j\)</span> 总是不小于 <span class="arithmatex">\(0\)</span>，所以 <span class="arithmatex">\(j\)</span> 减少的的总量不超过 <span class="arithmatex">\(j\)</span> 增加的的总量。而 <code>while</code> 循环总共迭代的次数不超过 <span class="arithmatex">\(j\)</span> 减少的的总量，所以复杂度是线性的。</p>
+<h3 id="knuthmorrispratt">回到字符串匹配（Knuth–Morris–Pratt 算法）</h3>
+<p>于是我们可以写出字符串匹配的代码，也可以用均摊分析证明时间复杂度是 <span class="arithmatex">\(\Theta(n)\)</span> 的：</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">find</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 这里返回出现的位置</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">m</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">loc</span><span class="p">(</span><span class="n">n</span><span class="p">).</span><span class="w"> </span><span class="n">pi</span><span class="p">(</span><span class="n">next</span><span class="p">(</span><span class="n">t</span><span class="p">));</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">j</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">j</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">t</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">!=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="n">j</span><span class="o">=</span><span class="n">pi</span><span class="p">[</span><span class="n">j</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">j</span><span class="o">==</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">loc</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">            </span><span class="n">j</span><span class="o">=</span><span class="n">pi</span><span class="p">[</span><span class="n">j</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">loc</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><del>所以我为什么把求前缀函数的代码又写了一遍？</del></p>
+<p>那有没有什么更无脑的方法呢？</p>
+<p>有的，考虑字符串 <span class="arithmatex">\(f=t+\texttt{\#}+s\)</span>，<span class="arithmatex">\(t\)</span> 出现在满足 <span class="arithmatex">\(\pi_i=\mid t\mid\)</span> 位置上（这里 <span class="arithmatex">\(\texttt{\#}\)</span> 不能在 <span class="arithmatex">\(s\)</span> 和 <span class="arithmatex">\(t\)</span> 中出现）。</p>
+<p>但是，不要用这种方法！就在短短一个暑假中，我就因为这种写法挂了两次，原因分别是：这种方法常数比一般的 KMP 大（TLE）；这种方法数组大小更大（RE）。</p>
+<h3 id="_2">另一个应用</h3>
+<p>问题：有字符串 <span class="arithmatex">\(s\)</span>，长度为 <span class="arithmatex">\(n\)</span>，请求出它的最小周期，不要求完整。如 <span class="arithmatex">\(\texttt{abeabeabeabe}\)</span> 的最小周期是 <span class="arithmatex">\(3\)</span>，<span class="arithmatex">\(\texttt{abbdab}\)</span> 的最小周期是 <span class="arithmatex">\(4\)</span>。</p>
+<p>一般的想法是枚举周期，用前缀函数判断是否合法，由调和级数的知识可知，它的复杂度是 <span class="arithmatex">\(\Theta(n\log n)\)</span> 的。</p>
+<p>然而周期的另一个定义是：若对于所有 <span class="arithmatex">\(i\in[0, n-p)\)</span> 有 <span class="arithmatex">\(s_i=s_{i+p}\)</span>，则 <span class="arithmatex">\(p\)</span> 是 <span class="arithmatex">\(s\)</span> 的一个周期。</p>
+<p>更糟糕的是，这几乎就是在说 border。所以直接输出 <span class="arithmatex">\(n-\pi_{n-1}\)</span>，复杂度为 <span class="arithmatex">\(\Theta(n)\)</span>。</p>
+<h2 id="z">Z 函数</h2>
+<p>Z 函数与前缀函数恰恰相反，<span class="arithmatex">\(z_i\)</span> 是 <span class="arithmatex">\(s\)</span> 与 <span class="arithmatex">\(s[i: n-1]\)</span> 的最长公共前缀的长度。</p>
+<p>假设在求 <span class="arithmatex">\(z_i\)</span> 前，前面元素的 Z 函数的最大值为 <span class="arithmatex">\(r\)</span>，且 <span class="arithmatex">\(z_l=r\)</span>，有下图：</p>
+<p><img alt="" src="https://cdn.luogu.com.cn/upload/image_hosting/ee1qyy4j.png" /></p>
+<p>如果 <span class="arithmatex">\(i+z_{i-l}\le r, i\le r\)</span>，那么由 Z 函数定义，两个部分完全一样，<span class="arithmatex">\(z_i=z_{i-l}\)</span>。</p>
+<p>否则 <span class="arithmatex">\(z_i+i-1\)</span> 一定在 <span class="arithmatex">\(r\)</span> 右边，此时暴力向右尝试即可。因为每次扩展会使 <span class="arithmatex">\(r\)</span> 向右移动一位，而 <span class="arithmatex">\(r\le n\)</span>，所以时间复杂度是 <span class="arithmatex">\(\Theta(n)\)</span> 的。</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">z_function</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">z</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span><span class="n">n</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span><span class="w"> </span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">l</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">r</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">l</span><span class="p">]);</span>
+<span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">i</span><span class="mi">-1</span><span class="o">&lt;</span><span class="n">n</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span><span class="w"> </span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">i</span><span class="mi">-1</span><span class="o">&gt;</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="n">r</span><span class="o">=</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">i</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Z 函数的应用和前缀函数差不多，这里不提了。</p>
+<h2 id="manacher">Manacher 算法</h2>
+<p>这个可以不写吗。</p>
+<p>Manacher 算法可以求字符串中以每个点为中点的回文串个数，因为回文串长度可能为偶数，所以考虑 <span class="arithmatex">\(s'=\texttt{\#}s_0\texttt{\#}s_1\texttt{\#}s_2\cdots\texttt{\#}s_{n-1}\texttt{\#}\)</span>。</p>
+<p>它使用了与 Z 函数类似的思想，使用 <span class="arithmatex">\(d_i\)</span> 表示以 <span class="arithmatex">\(i\)</span> 为中点的最长回文串长度，假设当前最长回文串的左右端点为 <span class="arithmatex">\(l, r\)</span>，如果 <span class="arithmatex">\(i\le r\)</span>，那么先令 <span class="arithmatex">\(d_i=\min(d_{r-l+i}, r-i+1)\)</span>，然后暴力拓展即可，复杂度也是线性的。</p>
+<p>（这个不知道放什么代码就不放了）</p>
+<h2 id="suffix-arraysa">后缀数组（Suffix Array，SA）</h2>
+<p>后缀数组很有趣，应用也很广泛。</p>
+<p>后缀数组可以把一个字符串的所有后缀按字典序排序，<span class="arithmatex">\(\text{sa}_i\)</span> 表示字典序第 <span class="arithmatex">\(i\)</span> 名的后缀的第一个字符在原串中的位置，<span class="arithmatex">\(\text{rk}_i\)</span> 表示 <span class="arithmatex">\(s[i:n-1]\)</span> 在后缀中的字典序排名。</p>
+<p>例如：<span class="arithmatex">\(s=\texttt{ababa}\)</span>，则 <span class="arithmatex">\(\text{sa}=[4, 2, 0, 3, 1]\)</span>，<span class="arithmatex">\(\text{rk}=[0, 1, 2, 3, 4]\)</span>。</p>
+<p>下面我们来渐近地考虑后缀数组地求法。</p>
+<h3 id="on2log-n"><span class="arithmatex">\(O(n^2\log n)\)</span></h3>
+<p>首先考虑暴力，共有 <span class="arithmatex">\(\Theta(n^2)\)</span> 个后缀，每次比较的时间复杂度是 <span class="arithmatex">\(O(n)\)</span>，所以使用 <code>std::sort</code> 的时间复杂度是 <span class="arithmatex">\(O(n^2\log n)\)</span>。</p>
+<h3 id="onlog2n"><span class="arithmatex">\(O(n\log^2n)\)</span></h3>
+<p>可以先换种思路，考虑基数排序，但时间复杂度还是 <span class="arithmatex">\(O(n^2\log n)\)</span>。</p>
+<p>但是后缀是有特殊性质的：后缀的后缀仍是后缀。所以假设比较 <span class="arithmatex">\(s[a: n-1]\)</span> 和 <span class="arithmatex">\(s[b: n-1]\)</span>，此时只考虑前 <span class="arithmatex">\(c\)</span> 位的话 <span class="arithmatex">\(rk_a\le rk_b\)</span>。</p>
+<p>那我们只要比较 <span class="arithmatex">\(s[a+c: n-1]\)</span> 和 <span class="arithmatex">\(s[a+c: n-1]\)</span> 的字典序，也就是比较 <span class="arithmatex">\(rk_{a+c}\)</span> 和 <span class="arithmatex">\(rk_{b+c}\)</span> 就行了。而且这样一轮排序后，<span class="arithmatex">\(c\)</span> 会翻倍。</p>
+<p>所以时间复杂度成功变为 <span class="arithmatex">\(O(n\log^2 n)\)</span>，已经可以做题了。</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suffix_array</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sa</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">rk</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">nrk</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">rk</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"> </span><span class="c1">// 按第一个字符排序</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">c</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="o">&lt;&lt;=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 倍增</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">sa</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">sa</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">==</span><span class="n">rk</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">?</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="o">&lt;</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="o">:</span><span class="n">rk</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">&lt;</span><span class="n">rk</span><span class="p">[</span><span class="n">b</span><span class="p">];</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">        </span><span class="n">nrk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// 这是为了保持稳定</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="o">!=</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">!=</span><span class="n">rk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]])</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="n">nrk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">=</span><span class="n">k</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">nrk</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sa</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="thetanlog-n"><span class="arithmatex">\(\Theta(n\log n)\)</span></h3>
+<p>首先赞叹 <code>std::sort</code> 神力，但是 <span class="arithmatex">\(\text{rk}\)</span> 的值域很小，可以用 LSD 基数排序做到单次排序 <span class="arithmatex">\(\Theta(n)\)</span>。</p>
+<p>非常可惜单 <span class="arithmatex">\(\log\)</span> 跑得和双 <span class="arithmatex">\(\log\)</span> 没什么区别。</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suffix_array</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">sa</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">rk</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">nrk</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">cnt</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">130</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 交替使用的 SA  新旧排名  计数排序用的桶</span>
+<span class="w">    </span><span class="n">rk</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">c</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="o">&lt;&lt;=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 处理 sa 使用计数+基数排序</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">fill</span><span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">cnt</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]]</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">+</span><span class="mi">130</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+=</span><span class="n">cnt</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="n">id</span><span class="p">[</span><span class="o">--</span><span class="n">cnt</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]]]</span><span class="o">=</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">fill</span><span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">cnt</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">id</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="o">+</span><span class="mi">130</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+=</span><span class="n">cnt</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="n">n</span><span class="mi">-1</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="n">sa</span><span class="p">[</span><span class="o">--</span><span class="n">cnt</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">id</span><span class="p">[</span><span class="n">i</span><span class="p">]]]]</span><span class="o">=</span><span class="n">id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+<span class="w">        </span><span class="c1">// 处理 rk</span>
+<span class="w">        </span><span class="n">nrk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="o">!=</span><span class="n">rk</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]</span><span class="o">+</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">!=</span><span class="n">rk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="mi">-1</span><span class="p">]])</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="n">nrk</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">=</span><span class="n">k</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">nrk</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sa</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>另外注意字符串长度可能比字符集大小小，开 <code>cnt</code> 数组的时候一定要开大一点。</p>
+<p>另外后缀排序可以做到 <span class="arithmatex">\(O(n)\)</span>，但显然不需要。</p>
+<h3 id="height-kasai">height 数组（Kasai 算法）</h3>
+<p>这是前缀数组一个强大的工具，能辅助解决一些问题。</p>
+<p>首先有一个问题：给定一个字符串，多次询问两个后缀的最长公共前缀（lcp）的长度。</p>
+<p>我们先考虑把所有后缀放到一个 Trie 树上，可以发现，问题就变为了求 LCA，而 LCA 可以转化为欧拉（DFS）序上的 RMQ。</p>
+<p>另一个发现是 Trie 树上 DFS 序等价于字典序（应该是的）。</p>
+<p>所以问题等价于后缀数组上的 RMQ，严格来讲后缀 <span class="arithmatex">\(s[l:n-1]\)</span> 和 <span class="arithmatex">\(s[r:n-1]\)</span> 的最长公共前缀长度为 <span class="arithmatex">\(\min_{i=l+1}^{r}\mid\operatorname{lcp}(s[i:n-1], s[i-1:n-1])\mid\)</span>。于是我们定义 <span class="arithmatex">\(h_i=\mid\operatorname{lcp}(s[i:n-1], s[i-1:n-1])\mid\)</span>。</p>
+<p>一般来讲，这可以二分+哈希求，但是如果真要这么做，为什么不一开始就这么做呢？所以这里继续考虑线性做法。</p>
+<p>事实上 <span class="arithmatex">\(h_{\text{rk}_i}\ge h_{\text{rk}_{i-1}}-1\)</span>，虽然我觉得这很没道理。然后就可以做到线性了。</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">k</span><span class="p">]</span><span class="o">==</span><span class="n">s</span><span class="p">[</span><span class="n">sa</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="mi">-1</span><span class="p">]</span><span class="o">+</span><span class="n">k</span><span class="p">])</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="n">h</span><span class="p">[</span><span class="n">rk</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">=</span><span class="n">k</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="_3">其他说明</h2>
+<p>这篇文章中我没有写 AC 自动机，因为我太懒了，下次了。</p>
+<p>很多内容参考了 yh 学长讲的课和 OI Wiki。</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>
