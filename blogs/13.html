@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
 
-    <title>字符串从基础到略微进阶算法合集</title>
+    <title>13</title>
 
     <link rel="canonical" href="blogs/13.html">
 
@@ -14,7 +14,7 @@
 
     <meta name="robots" content="noindex, nofollow">
 
-    <meta name="title" content="字符串从基础到略微进阶算法合集">
+    <meta name="title" content="13">
     <meta name="description" content="注意：我不太喜欢字符串哈希，所以我没有写。 注意：本文偏重于算法及其思想本身，涉及到的题目较少。 注意：本文中字符串下标从 $0$ 开始。 注意：本文用 $s[i: j]$ 表示字符串 $si s{i+1} s{i+2} \cdots s{j1} s{j}$。 Trie 树（字典树） 我们要维护一个字符串的集合，比如 $\{\texttt{long}, \texttt{longlong}, \texttt{lung}, \texttt{let}, \texttt{lulu}\}$。我们当然可以直接存起来，但">
 
 
@@ -80,15 +80,15 @@ display:false
 
         
 <h1>
-字符串从基础到略微进阶算法合集
+13
 </h1>
 
 
         
 <p>
 <i>
-<time datetime="2026-08-22T15:32:17">
-August 22, 2026
+<time datetime="2000-01-01T00:00:00">
+January 01, 2000
 </time>
 </i>
 </p>
@@ -257,7 +257,7 @@ August 22, 2026
 <h3 id="onlog2n"><span class="arithmatex">\(O(n\log^2n)\)</span></h3>
 <p>可以先换种思路，考虑基数排序，但时间复杂度还是 <span class="arithmatex">\(O(n^2\log n)\)</span>。</p>
 <p>但是后缀是有特殊性质的：后缀的后缀仍是后缀。所以假设比较 <span class="arithmatex">\(s[a: n-1]\)</span> 和 <span class="arithmatex">\(s[b: n-1]\)</span>，此时只考虑前 <span class="arithmatex">\(c\)</span> 位的话 <span class="arithmatex">\(rk_a\le rk_b\)</span>。</p>
-<p>那我们只要比较 <span class="arithmatex">\(s[a+c: n-1]\)</span> 和 <span class="arithmatex">\(s[a+c: n-1]\)</span> 的字典序，也就是比较 <span class="arithmatex">\(rk_{a+c}\)</span> 和 <span class="arithmatex">\(rk_{b+c}\)</span> 就行了。而且这样一轮排序后，<span class="arithmatex">\(c\)</span> 会翻倍。</p>
+<p>那我们只要比较 <span class="arithmatex">\(s[a+c: n-1]\)</span> 和 <span class="arithmatex">\(s[b+c: n-1]\)</span> 的字典序，也就是比较 <span class="arithmatex">\(rk_{a+c}\)</span> 和 <span class="arithmatex">\(rk_{b+c}\)</span> 就行了。而且这样一轮排序后，<span class="arithmatex">\(c\)</span> 会翻倍。</p>
 <p>所以时间复杂度成功变为 <span class="arithmatex">\(O(n\log^2 n)\)</span>，已经可以做题了。</p>
 <div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">suffix_array</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
