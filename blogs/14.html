@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>对于阶乘的研究</title>
+
+    <link rel="canonical" href="blogs/14.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="对于阶乘的研究">
+    <meta name="description" content="Part 1 众所周知，我们有调和级数近似公式：$1+\frac{1}{2}+\frac{1}{3}+\cdots+\frac{1}{n}\approx\ln n+\gamma+\frac{1}{2n}$，可以在 ploylog 的时间内算出。 但昨天晚上，我发现阶乘是一个非常棒的东西，可我却只知道一个线性的求法，这糟完了。于是我开始研究： 首先试试取对数：$\ln(n!)=\ln 1+\ln 2+\ln 3+\cdots+\ln n$。 所以显然 $\ln(n!)\approx\int{1}^{n}\ln">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../comment.html">留言</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+<h1>
+对于阶乘的研究
+</h1>
+
+
+        
+<p>
+<i>
+<time datetime="2026-10-03T12:48:00">
+October 03, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <h2 id="part-1">Part 1</h2>
+<p>众所周知，我们有调和级数近似公式：<span class="arithmatex">\(1+\frac{1}{2}+\frac{1}{3}+\cdots+\frac{1}{n}\approx\ln n+\gamma+\frac{1}{2n}\)</span>，可以在 ploylog 的时间内算出。</p>
+<p>但昨天晚上，我发现阶乘是一个非常棒的东西，可我却只知道一个线性的求法，这糟完了。于是我开始研究：</p>
+<p>首先试试取对数：<span class="arithmatex">\(\ln(n!)=\ln 1+\ln 2+\ln 3+\cdots+\ln n\)</span>。</p>
+<p>所以显然 <span class="arithmatex">\(\ln(n!)\approx\int_{1}^{n}\ln x\text{d}x\)</span>。</p>
+<p>我的积分太差了，所以我选择使用注意力，很快我便发现 <span class="arithmatex">\(\int\ln x\text{d}x=x\ln x-x+C\)</span>。由牛莱公式可知 <span class="arithmatex">\(\ln(n!)\approx x\ln x-x+1\)</span>。</p>
+<p>欸不是这怎么是斯特林公式啊。</p>
+<p>习题：求出 <span class="arithmatex">\(3\times5\times7\times\cdots\times(2n+1)\)</span> 在十进制下的位数。</p>
+<h2 id="part-2">Part 2</h2>
+<p>有没有什么更好的式子呢？</p>
+<p>我们观察到多项式的导数和积分与阶乘有着很大的关系，比如泰勒公式。而由斯特林公式我们知道 <span class="arithmatex">\(x^x\)</span> 和 <span class="arithmatex">\(e^x\)</span> 也很重要。所以某人有这个函数：</p>
+<div class="arithmatex">\[
+\Gamma(n)=\int_0^{\infty}\frac{x^{n-1}}{e^x}\text{d}x
+\]</div>
+<p>令 <span class="arithmatex">\(v=x^{n-1}\)</span>，<span class="arithmatex">\(\text{d}u=\dfrac{1}{e^x}\text{d}x\)</span>，则 <span class="arithmatex">\(u=-\dfrac{1}{e^x}\)</span>，<span class="arithmatex">\(\text{d}v=(n-1)x^{n-2}\text{d}x\)</span>。</p>
+<p>由分部积分法（<span class="arithmatex">\(\int v\text{d}u=uv-\int u\text{d}v\)</span>）可知</p>
+<div class="arithmatex">\[
+\begin{align*}
+g(n, x)=\int\frac{x^{n-1}}{e^x}\text{d}x&amp;=-\frac{x^{n-1}}{e^x}+\int\frac{(n-1)x^{n-2}}{e^x}\text{d}x\\
+&amp;=-\frac{x^{n-1}}{e^x}+(n-1)\int\frac{x^{n-2}}{e^x}\text{d}x\\
+&amp;=-\frac{x^{n-1}}{e^x}+(n-1)g(n-1, x)
+\end{align*}
+\]</div>
+<p>我们有牛莱公式，所以当 <span class="arithmatex">\(n\neq 1\)</span> 时</p>
+<div class="arithmatex">\[
+\begin{align*}
+\Gamma(n)&amp;=\lim_{x\to\infty}g(n, x)-g(n, 0)\\
+&amp;=\lim_{x\to\infty}(-\frac{x^{n-1}}{e^x}+(n-1)g(n-1, x))-(0+(n-1)g(n-1, 0))\\
+&amp;=\lim_{x\to\infty}(-\frac{x^{n-1}}{e^x})+(n-1)\Gamma(n-1)\\
+&amp;=(n-1)\Gamma(n-1)
+\end{align*}
+\]</div>
+<p>以及 <span class="arithmatex">\(\Gamma(1)=1\)</span>。</p>
+<p>所以说，在自然数范围内 <span class="arithmatex">\(n!=\Gamma(n+1)\)</span>。</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>
