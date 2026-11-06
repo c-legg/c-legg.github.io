@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+
+    <title>CSP 2026 无 SA 游记</title>
+
+    <link rel="canonical" href="blogs/15.html">
+
+    
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="title" content="CSP 2026 无 SA 游记">
+    <meta name="description" content="大家好我是 clegg，是江苏省邗江中学的一名高一学生，在 CSPS 2026 初赛中因为获得了 $76$ 分，有点弱了。 我很喜欢 SA，所以在比赛的前一天我复习了各种 SA 的算法，比如 DC3，当然如果你不会 SA，可以阅读这篇文章。 时间很快来到万圣节，不知不觉离涩谷事变已经过去了 $8$ 年了，真是令人感到怀念啊。 因为我不是扬州中学的学生，所以我只能坐我老父亲的车前往南京。南京是个好地方，那里有很多地铁站，楼房高得可以遮住太阳，天上还有大雁迁徙。 在南京吃完午饭后，我买了一瓶补水了，不为别的，只">
+
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../style.css">
+
+
+    <!-- KaTeX -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js">
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="
+renderMathInElement(
+document.body,
+{
+delimiters:[
+{
+left:'$$',
+right:'$$',
+display:true
+},
+{
+left:'$',
+right:'$',
+display:false
+}
+]
+}
+);
+">
+</script>
+
+</head>
+
+<body>
+
+    <header>
+
+        <a class="title" href="/">
+
+            <h1>
+                Clever Legg
+            </h1>
+
+        </a>
+
+        <nav>
+
+            <p>
+
+                <a href="../blog.html">博客</a> <a href="../comment.html">留言</a> <a href="../index.html">首页</a> 
+
+            </p>
+
+        </nav>
+
+    </header>
+
+    <main>
+
+        
+<h1>
+CSP 2026 无 SA 游记
+</h1>
+
+
+        
+<p>
+<i>
+<time datetime="2026-11-01T13:27:00">
+November 01, 2026
+</time>
+</i>
+</p>
+
+
+        <!-- Markdown 内容 -->
+
+        <p>大家好我是 c_legg，是江苏省邗江中学的一名高一学生，在 CSP-S 2026 初赛中因为获得了 <span class="arithmatex">\(76\)</span> 分，有点弱了。</p>
+<p>我很喜欢 SA，所以在比赛的前一天我复习了各种 SA 的算法，比如 DC3，当然如果你不会 SA，可以阅读<a href="https://c-legg.github.io/blogs/13.html">这篇文章</a>。</p>
+<p>时间很快来到万圣节，不知不觉离涩谷事变已经过去了 <span class="arithmatex">\(8\)</span> 年了，真是令人感到怀念啊。</p>
+<p>因为我不是扬州中学的学生，所以我只能坐我老父亲的车前往南京。南京是个好地方，那里有很多地铁站，楼房高得可以遮住太阳，天上还有大雁迁徙。</p>
+<p>在南京吃完午饭后，我买了一瓶补水了，不为别的，只为吟唱：</p>
+<blockquote>
+<p>欧蕾，欧蕾欧蕾欧蕾，欧蕾——我是姆巴佩，不睡了。</p>
+</blockquote>
+<p>很快我又来到了南京外国语学校，这是一个好学校，我在这里的停车场里看了望穿秋水 145 的新宿决战雨爱版、竖笛小魔王的飙马野郎解说以及安迪视频的柯蒂斯总统解说。</p>
+<p>两点左右，我离开了地下车库，在学校北门处遇见了扬中的众人。和他们讨论了一会儿 J 组题目后发现——我好唐啊。</p>
+<p>对了，我还遇到了 lzx，遗憾的是，我和他相撞并不会湮灭。</p>
+<p>我终于进入了考场，cyh、pfy 也在这里。我坐错了位置，偏移量是 <span class="arithmatex">\(1\)</span>。但不管怎样，我坐了下来，更换了背景图片、更换了 vscode 主题为 Quiet Light（真的很好看，建议你也去用）、编写了 SA 模板但是没有调好、游玩了 Emacs 中的 snake。</p>
+<p>这个位置真正的主人来了，她指出了我坐错的事实，我很羞愧，移到了旁边。</p>
+<p>对不起，JS-J00823。</p>
+<p>于是比赛开始了。</p>
+<p>我阅读了第一题，并且秒掉了它，在第 <span class="arithmatex">\(9\)</span> 分钟时写好了代码并完成了测试。</p>
+<p>我阅读了第二题，这不是一道可以用 SA 解决的问题，而是一道图论题，可惜了。渐渐地我意识到线路很少和极小的度数是一个突破口，于是写出了一份 <span class="arithmatex">\(O(d^2m+n^3+qd^2)\)</span> 的代码，我认为我可以得到 <span class="arithmatex">\(92\)</span> 分，完成测试时时间是第 <span class="arithmatex">\(51\)</span> 分钟。</p>
+<p>现在我发现这里的 <span class="arithmatex">\(md=O(\sum k)\)</span>，所以这是一份满分代码。</p>
+<p>但是我不确定我是否正确地书写了 Floyd 算法，好消息是答案很快会揭晓。</p>
+<p>之后我尝试在后两题上获得一些分数，可最终的结果是 <span class="arithmatex">\(18\)</span> 分。</p>
+<p>而更令人感到愤怒的是后两题竟然也不能使用 SA，这就像蛋糕店里没有蛋糕卖、面包店里没有面包卖一样荒唐且可笑。</p>
+<p>值得一提的是，在比赛的最后，我决定用快速读入来优化第二题，可这时我却发现，我的大样例运行了 <span class="arithmatex">\(1.5\)</span> 秒！难道快速读入的速度不如解绑的 <code>cin</code>？</p>
+<p>经过一些研究，我发现：<span class="arithmatex">\(51\)</span> 分钟时我在测试时加入了 <code>-O2</code> 指令，但这次没有。但最终我还是没有使用快速读入或其他的优化，甚至没有对代码进行任何一个字节的改动。</p>
+<p>只能说是 O2 神力把，从 <span class="arithmatex">\(1.5\)</span> 秒优化到了 <span class="arithmatex">\(0.4\)</span> 秒。</p>
+<p>比赛结束了，我在考场楼下和之前的老师聊了几句。突然发现我忘了拿包了，便又赶回了考场。</p>
+<p>我认为 CSP-S 2026 是非常糟糕的，因为没有 SA 题目。顺带一提，我的估分是 <span class="arithmatex">\(218\)</span> 分，这非常棒，但我真的不会挂分吗？</p>
+<p>更有意思的是，坐在我左边的考生（JS-S00821）是 NOI 2026 Ag。</p>
+
+    </main>
+
+    <footer>
+
+        <span>
+            Powered by <a href="https://github.com/c-legg/doveblog">DoveBlog</a>.
+        </span>
+
+    </footer>
+
+    <!-- KaTeX 自动渲染 -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                renderMathInElement(
+                    document.body,
+                    {
+
+                        delimiters:
+                            [
+
+                                {
+                                    left: "$$",
+                                    right: "$$",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "$",
+                                    right: "$",
+                                    display: false
+                                },
+
+
+                                {
+                                    left: "\\[",
+                                    right: "\\]",
+                                    display: true
+                                },
+
+
+                                {
+                                    left: "\\(",
+                                    right: "\\)",
+                                    display: false
+                                }
+
+                            ],
+
+
+                        throwOnError: false
+
+                    }
+                );
+
+            });
+
+
+    </script>
+
+</body>
+
+</html>
